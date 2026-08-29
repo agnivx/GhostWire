@@ -111,6 +111,14 @@
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
+
+    /* Mobile Touch Long-Press Utility */
+    .msg-bubble-target {
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+      touch-action: manipulation;
+    }
   </style>
 </head>
 <body id="body-bg" class="h-full overflow-hidden flex flex-col justify-between doodle-bg-dark text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
@@ -211,37 +219,49 @@
 
           <!-- Auth Mode Switch Tabs -->
           <div class="flex rounded-xl p-1 bg-slate-900/60 border border-slate-800 relative z-10">
-            <button type="button" id="tab-auth-login" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition">Sign In</button>
-            <button type="button" id="tab-auth-register" class="flex-1 py-1.5 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition">Create Account</button>
+            <button type="button" id="tab-auth-login" class="flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition">Sign In</button>
+            <button type="button" id="tab-auth-register" class="flex-1 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition">Create Account</button>
           </div>
+
+          <!-- Prominent Error Alert Box -->
+          <div id="auth-error" class="hidden text-xs text-rose-400 bg-rose-500/10 p-3 rounded-xl border border-rose-500/30 font-medium text-left leading-relaxed relative z-10"></div>
 
           <form id="auth-form" class="space-y-3 relative z-10">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Username</label>
-              <input type="text" id="input-username" required placeholder="e.g. alice, bob, charlie" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+              <input type="text" id="input-username" required minlength="2" autocomplete="username" placeholder="e.g. alice, bob, charlie" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
             </div>
+
             <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Password</label>
-              <input type="password" id="input-password" required placeholder="••••••••" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">Password</label>
+                <span id="hint-password" class="text-[10px] text-slate-500">Min 4 characters</span>
+              </div>
+              <div class="relative">
+                <input type="password" id="input-password" required minlength="4" autocomplete="current-password" placeholder="••••••••" class="input-field w-full px-3.5 py-2.5 pr-10 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+                <button type="button" id="btn-toggle-pwd-visibility" class="absolute right-3 top-2.5 text-slate-400 hover:text-slate-200 text-xs">
+                  👁️
+                </button>
+              </div>
             </div>
+
             <div id="field-confirm-password" class="hidden">
               <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Confirm Password</label>
-              <input type="password" id="input-confirm-password" placeholder="••••••••" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+              <input type="password" id="input-confirm-password" minlength="4" autocomplete="new-password" placeholder="••••••••" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
             </div>
+
             <div id="field-displayname" class="hidden">
               <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Display Name (Optional)</label>
               <input type="text" id="input-displayname" placeholder="e.g. Alice Smith" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
             </div>
             
-            <button type="submit" id="btn-auth-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 mt-1">
+            <button type="submit" id="btn-auth-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 mt-2">
               <span id="btn-auth-text">Sign In</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
               </svg>
             </button>
           </form>
-
-          <div id="auth-error" class="hidden text-xs text-rose-500 dark:text-rose-400 text-center font-medium bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20"></div>
         </div>
       </div>
 
@@ -536,6 +556,38 @@
     </div>
   </div>
 
+  <!-- Mobile Long Press Reaction & Action Bottom Sheet / Tray -->
+  <div id="mobile-reaction-modal" class="hidden fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
+    <div id="mobile-reaction-backdrop" class="absolute inset-0"></div>
+    <div class="glass-panel w-full sm:max-w-sm rounded-t-3xl sm:rounded-3xl p-5 border border-slate-200 dark:border-slate-800/80 shadow-2xl relative z-10 space-y-4 animate-in slide-in-from-bottom duration-200">
+      
+      <div class="flex items-center justify-between">
+        <span class="text-xs font-bold uppercase tracking-wider text-slate-400">React to Message</span>
+        <button id="btn-close-reaction-tray" class="text-slate-400 hover:text-white text-sm font-bold p-1">✕</button>
+      </div>
+
+      <!-- Emoji Bar -->
+      <div class="flex items-center justify-between gap-1 sm:gap-2 p-2 rounded-2xl bg-slate-900/60 border border-slate-800">
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="❤️">❤️</button>
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="👍">👍</button>
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="😂">😂</button>
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="🔥">🔥</button>
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="😮">😮</button>
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="🙏">🙏</button>
+        <button type="button" class="reaction-tray-emoji text-2xl hover:scale-125 transform transition active:scale-95 p-1" data-emoji="🎉">🎉</button>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="space-y-1.5 pt-1 border-t border-slate-800/80">
+        <button id="btn-tray-copy-text" class="w-full py-2.5 px-3 rounded-xl hover:bg-slate-800/60 text-left text-xs font-semibold text-slate-200 flex items-center gap-2.5 transition">
+          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          <span>Copy Message Text</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- Client Application & WebCrypto Encryption Engine -->
   <script>
     // --- Application State ---
@@ -586,6 +638,29 @@
     }
 
     // --- In-App Floating Toast Notification ---
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const typeStyles = {
+        info: 'border-indigo-500/40 text-indigo-400',
+        warning: 'border-amber-500/40 text-amber-400',
+        error: 'border-rose-500/40 text-rose-400',
+        success: 'border-emerald-500/40 text-emerald-400'
+      };
+
+      toast.className = `glass-card p-3 rounded-2xl shadow-2xl border ${typeStyles[type] || typeStyles.info} pointer-events-auto flex items-center gap-2.5 msg-enter text-xs font-semibold max-w-xs transition-all`;
+      toast.innerHTML = `<span>${type === 'warning' ? '⚠️' : type === 'error' ? '❌' : type === 'success' ? '✅' : 'ℹ️'}</span> <span>${escapeHtml(message)}</span>`;
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+      }, 3500);
+    }
+
     function showInAppToast(senderUser, text) {
       const container = document.getElementById('toast-container');
       if (!container) return;
@@ -825,9 +900,10 @@
     function setAuthMode(mode) {
       authMode = mode;
       authError.classList.add('hidden');
+      authError.innerHTML = '';
       if (mode === 'login') {
-        tabLogin.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition';
-        tabRegister.className = 'flex-1 py-1.5 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition';
+        tabLogin.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition';
+        tabRegister.className = 'flex-1 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition';
         fieldConfirm.classList.add('hidden');
         fieldDisplay.classList.add('hidden');
         inputConfirm.removeAttribute('required');
@@ -835,8 +911,8 @@
         authSubtitle.textContent = 'Enter your credentials to access your encrypted conversations.';
         authBtnText.textContent = 'Sign In';
       } else {
-        tabRegister.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition';
-        tabLogin.className = 'flex-1 py-1.5 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition';
+        tabRegister.className = 'flex-1 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition';
+        tabLogin.className = 'flex-1 py-2 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition';
         fieldConfirm.classList.remove('hidden');
         fieldDisplay.classList.remove('hidden');
         inputConfirm.setAttribute('required', 'true');
@@ -849,38 +925,88 @@
     tabLogin.addEventListener('click', () => setAuthMode('login'));
     tabRegister.addEventListener('click', () => setAuthMode('register'));
 
+    // Toggle Password Visibility Button
+    document.getElementById('btn-toggle-pwd-visibility').addEventListener('click', () => {
+      const pwdInput = document.getElementById('input-password');
+      const confirmInput = document.getElementById('input-confirm-password');
+      const isPwd = pwdInput.type === 'password';
+      pwdInput.type = isPwd ? 'text' : 'password';
+      if (confirmInput) confirmInput.type = isPwd ? 'text' : 'password';
+    });
+
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       authError.classList.add('hidden');
+      authError.innerHTML = '';
       const username = document.getElementById('input-username').value.trim();
       const password = document.getElementById('input-password').value.trim();
       const display_name = document.getElementById('input-displayname').value.trim();
       
+      if (!username || username.length < 2) {
+        authError.innerHTML = '⚠️ Username must be at least 2 characters.';
+        authError.classList.remove('hidden');
+        return;
+      }
+
+      if (!password || password.length < 4) {
+        authError.innerHTML = '⚠️ Password must be at least 4 characters.';
+        authError.classList.remove('hidden');
+        return;
+      }
+
       if (authMode === 'register') {
         const confirmPassword = inputConfirm.value.trim();
         if (password !== confirmPassword) {
-          authError.textContent = 'Passwords do not match. Please verify your password.';
+          authError.innerHTML = '⚠️ Passwords do not match. Please verify both password fields.';
           authError.classList.remove('hidden');
           return;
         }
       }
 
-      const res = await fetch('/api/auth/simple-login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password, display_name })
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        currentUser = data.user;
-        sessionToken = data.token;
-        localStorage.setItem('chat_session_token', data.token);
-        onAuthenticated();
-      } else {
-        const err = await res.json();
-        authError.textContent = err.detail || 'Authentication failed. Check your password.';
+      const submitBtn = document.getElementById('btn-auth-submit');
+      const submitText = document.getElementById('btn-auth-text');
+      const originalText = submitText.textContent;
+      submitBtn.disabled = true;
+      submitText.textContent = authMode === 'register' ? 'Creating account...' : 'Signing in...';
+
+      try {
+        const res = await fetch('/api/auth/simple-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            username,
+            password,
+            display_name: display_name || undefined,
+            mode: authMode
+          })
+        });
+        
+        if (res.ok) {
+          const data = await res.json();
+          currentUser = data.user;
+          sessionToken = data.token;
+          localStorage.setItem('chat_session_token', data.token);
+          onAuthenticated();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          let errMsg = err.detail || (authMode === 'register' ? 'Registration failed. Please try a different username.' : 'Authentication failed. Please check your credentials.');
+          
+          // Provide 1-click quick switch actions
+          if (authMode === 'login' && res.status === 404) {
+            errMsg += ` <button type="button" onclick="setAuthMode('register')" class="underline font-bold text-indigo-400 hover:text-indigo-300 ml-1">Create Account &rarr;</button>`;
+          } else if (authMode === 'register' && res.status === 400 && errMsg.includes('already registered')) {
+            errMsg += ` <button type="button" onclick="setAuthMode('login')" class="underline font-bold text-indigo-400 hover:text-indigo-300 ml-1">Sign In &rarr;</button>`;
+          }
+
+          authError.innerHTML = errMsg;
+          authError.classList.remove('hidden');
+        }
+      } catch(err) {
+        authError.innerHTML = '⚠️ Network or server error. Please check your connection and try again.';
         authError.classList.remove('hidden');
+      } finally {
+        submitBtn.disabled = false;
+        submitText.textContent = originalText;
       }
     });
 
@@ -997,6 +1123,8 @@
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'read_ack', room_id: roomId }));
       }
+    }
+
     // --- Date and Time Formatting Helpers (UTC -> Local Timezone) ---
     function parseUtcDate(isoStr) {
       if (!isoStr) return new Date();
@@ -1284,7 +1412,7 @@
       div.className = `flex ${isMine ? 'justify-end' : 'justify-start'} msg-enter relative group`;
       
       div.innerHTML = `
-        <div class="max-w-md px-4 py-2.5 rounded-2xl text-sm relative ${isMine ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-br-xs shadow-lg shadow-indigo-600/15' : 'glass-card rounded-bl-xs shadow-sm'}">
+        <div class="msg-bubble-target max-w-md px-4 py-2.5 rounded-2xl text-sm relative select-none cursor-pointer ${isMine ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-br-xs shadow-lg shadow-indigo-600/15' : 'glass-card rounded-bl-xs shadow-sm'}">
           
           <div class="hidden group-hover:flex absolute -top-8 ${isMine ? 'right-0' : 'left-0'} px-2 py-1 rounded-full bg-slate-900/90 border border-slate-700 shadow-xl items-center gap-1.5 z-20">
             <button onclick="sendReaction('${msg.id}', '❤️')" class="hover:scale-125 transition">❤️</button>
@@ -1304,6 +1432,54 @@
           <div id="reactions-container-${msg.id}" class="mt-1">${reactionsHtml}</div>
         </div>
       `;
+
+      // Touch Long-Press Gesture Detection for Mobile Devices
+      const bubbleEl = div.querySelector('.msg-bubble-target');
+      let touchStartX = 0;
+      let touchStartY = 0;
+      let longPressTimer = null;
+      let isLongPressed = false;
+
+      bubbleEl.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        isLongPressed = false;
+
+        longPressTimer = setTimeout(() => {
+          isLongPressed = true;
+          if (navigator.vibrate) {
+            try { navigator.vibrate(35); } catch(err) {}
+          }
+          openMobileReactionTray(msg.id, rawContent);
+        }, 400);
+      }, { passive: true });
+
+      bubbleEl.addEventListener('touchmove', (e) => {
+        if (e.touches.length !== 1) return;
+        const deltaX = Math.abs(e.touches[0].clientX - touchStartX);
+        const deltaY = Math.abs(e.touches[0].clientY - touchStartY);
+        if (deltaX > 10 || deltaY > 10) {
+          clearTimeout(longPressTimer);
+        }
+      }, { passive: true });
+
+      bubbleEl.addEventListener('touchend', (e) => {
+        clearTimeout(longPressTimer);
+        if (isLongPressed) {
+          e.preventDefault();
+        }
+      });
+
+      bubbleEl.addEventListener('touchcancel', () => {
+        clearTimeout(longPressTimer);
+      });
+
+      bubbleEl.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        openMobileReactionTray(msg.id, rawContent);
+      });
+
       container.appendChild(div);
       container.scrollTop = container.scrollHeight;
     }
@@ -1331,6 +1507,49 @@
         container.innerHTML = renderReactionsPills(msgId, reactions);
       }
     }
+
+    // --- Mobile Long-Press Emoji Reaction Tray Controller ---
+    let currentTrayMsgId = null;
+    let currentTrayMsgText = '';
+
+    function openMobileReactionTray(msgId, text) {
+      currentTrayMsgId = msgId;
+      currentTrayMsgText = text;
+      const modal = document.getElementById('mobile-reaction-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeMobileReactionTray() {
+      const modal = document.getElementById('mobile-reaction-modal');
+      if (modal) modal.classList.add('hidden');
+      currentTrayMsgId = null;
+      currentTrayMsgText = '';
+    }
+
+    document.getElementById('mobile-reaction-backdrop')?.addEventListener('click', closeMobileReactionTray);
+    document.getElementById('btn-close-reaction-tray')?.addEventListener('click', closeMobileReactionTray);
+
+    document.querySelectorAll('.reaction-tray-emoji').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const emoji = btn.getAttribute('data-emoji');
+        if (currentTrayMsgId && emoji) {
+          sendReaction(currentTrayMsgId, emoji);
+        }
+        closeMobileReactionTray();
+      });
+    });
+
+    document.getElementById('btn-tray-copy-text')?.addEventListener('click', async () => {
+      if (currentTrayMsgText) {
+        try {
+          await navigator.clipboard.writeText(currentTrayMsgText);
+          showToast('Copied to clipboard!', 'success');
+        } catch(e) {
+          showToast('Copy failed', 'warning');
+        }
+      }
+      closeMobileReactionTray();
+    });
 
     function markAllMessagesAsReadUI() {
       const checkmarks = document.querySelectorAll('.msg-checkmarks');
