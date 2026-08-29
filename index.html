@@ -195,33 +195,43 @@
     <main class="flex-1 overflow-hidden relative flex">
 
       <!-- Authentication Screen with Password Security -->
-      <div id="auth-screen" class="absolute inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-2xl">
-        <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 border border-slate-200 dark:border-slate-800/80 relative overflow-hidden cyber-glow">
+      <div id="auth-screen" class="absolute inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-slate-950/85 dark:bg-slate-950/90 backdrop-blur-2xl overflow-y-auto">
+        <div class="glass-panel w-full max-w-md p-6 sm:p-7 rounded-3xl shadow-2xl space-y-4 border border-slate-200 dark:border-slate-800/80 relative overflow-hidden cyber-glow my-auto">
           
-          <div class="text-center space-y-2 relative z-10">
-            <div class="flex justify-center mb-3">
-              <img src="/static/logo.png" alt="GhostWire" class="h-14 object-contain drop-shadow-[0_0_24px_rgba(56,189,248,0.4)]">
+          <div class="text-center space-y-1 relative z-10">
+            <div class="flex justify-center mb-2">
+              <img src="/static/logo.png" alt="GhostWire" class="h-11 object-contain drop-shadow-[0_0_20px_rgba(56,189,248,0.4)]">
             </div>
-            <h2 class="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Secure Sign In</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Enter your username and password to sign in or create your account.</p>
+            <h2 id="auth-modal-title" class="font-display text-xl font-bold tracking-tight text-slate-900 dark:text-white">Welcome Back</h2>
+            <p id="auth-modal-subtitle" class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Enter your credentials to access your encrypted conversations.</p>
           </div>
 
-          <form id="auth-form" class="space-y-4 relative z-10">
+          <!-- Auth Mode Switch Tabs -->
+          <div class="flex rounded-xl p-1 bg-slate-900/60 border border-slate-800 relative z-10">
+            <button type="button" id="tab-auth-login" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition">Sign In</button>
+            <button type="button" id="tab-auth-register" class="flex-1 py-1.5 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition">Create Account</button>
+          </div>
+
+          <form id="auth-form" class="space-y-3 relative z-10">
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Username</label>
-              <input type="text" id="input-username" required placeholder="e.g. alice, bob, charlie" class="input-field w-full px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+              <input type="text" id="input-username" required placeholder="e.g. alice, bob, charlie" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
             </div>
             <div>
               <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Password</label>
-              <input type="password" id="input-password" required placeholder="••••••••" class="input-field w-full px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+              <input type="password" id="input-password" required placeholder="••••••••" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
             </div>
-            <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Display Name (Optional for new users)</label>
-              <input type="text" id="input-displayname" placeholder="e.g. Alice Smith" class="input-field w-full px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+            <div id="field-confirm-password" class="hidden">
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Confirm Password</label>
+              <input type="password" id="input-confirm-password" placeholder="••••••••" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+            </div>
+            <div id="field-displayname" class="hidden">
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Display Name (Optional)</label>
+              <input type="text" id="input-displayname" placeholder="e.g. Alice Smith" class="input-field w-full px-3.5 py-2.5 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
             </div>
             
-            <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2">
-              <span>Sign In / Create Account</span>
+            <button type="submit" id="btn-auth-submit" class="w-full py-3 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2 mt-1">
+              <span id="btn-auth-text">Sign In</span>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
               </svg>
@@ -296,20 +306,34 @@
                 </div>
               </div>
 
-              <!-- Header Search & Security Badge -->
-              <div class="flex items-center gap-3">
+              <!-- Header Action Buttons & Security Badge -->
+              <div class="flex items-center gap-2 sm:gap-3">
+                <!-- Voice Call Button -->
+                <button id="btn-start-audio-call" title="Start Encrypted Voice Call" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-emerald-500 hover:border-emerald-500/40 transition shadow-sm">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
+                  </svg>
+                </button>
+
+                <!-- Video Call Button -->
+                <button id="btn-start-video-call" title="Start Encrypted Video Call" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-indigo-500 hover:border-indigo-500/40 transition shadow-sm">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                  </svg>
+                </button>
+
                 <!-- In-Chat Search Button -->
-                <button id="btn-toggle-inchat-search" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition">
+                <button id="btn-toggle-inchat-search" title="Search messages" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                   </svg>
                 </button>
 
-                <div class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-medium flex items-center gap-1.5 shadow-sm">
+                <div class="hidden sm:flex px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-medium items-center gap-1.5 shadow-sm">
                   <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
                   </svg>
-                  <span>256-Bit E2EE Active</span>
+                  <span>256-Bit E2EE</span>
                 </div>
               </div>
             </div>
@@ -381,6 +405,125 @@
       </div>
 
     </main>
+  </div>
+
+  <!-- ================= INCOMING CALL MODAL ================= -->
+  <div id="modal-incoming-call" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+    <div class="glass-panel w-full max-w-sm p-7 rounded-3xl border border-indigo-500/30 text-center shadow-2xl relative cyber-glow">
+      <!-- Pulsing Call Icon with Ambient Ripple -->
+      <div class="relative w-20 h-20 mx-auto mb-4 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full bg-indigo-500/20 animate-ping"></div>
+        <div id="incoming-call-avatar" class="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-2xl shadow-xl ring-4 ring-indigo-500/40 relative z-10">
+          U
+        </div>
+      </div>
+
+      <h3 id="incoming-caller-name" class="font-display text-lg font-bold text-slate-900 dark:text-white">Caller Name</h3>
+      <p id="incoming-caller-username" class="text-xs text-slate-500 dark:text-slate-400 mb-1">@username</p>
+      <div id="incoming-call-type-badge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-indigo-500/10 text-indigo-500 border border-indigo-500/20 mb-6">
+        <span class="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></span>
+        <span id="incoming-call-type-text">Incoming Call...</span>
+      </div>
+
+      <!-- Accept / Decline Action Buttons -->
+      <div class="flex items-center justify-center gap-4">
+        <!-- Decline Call -->
+        <button id="btn-decline-call" type="button" class="flex-1 py-3 px-4 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition shadow-lg shadow-rose-600/30 flex items-center justify-center gap-2 transform active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+          <span>Decline</span>
+        </button>
+
+        <!-- Accept Call -->
+        <button id="btn-accept-call" type="button" class="flex-1 py-3 px-4 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs transition shadow-lg shadow-emerald-600/30 flex items-center justify-center gap-2 transform active:scale-95 animate-bounce [animation-duration:1.5s]">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          <span>Answer</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= ACTIVE CALL OVERLAY MODAL ================= -->
+  <div id="modal-active-call" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-slate-950/95 backdrop-blur-2xl hidden">
+    <div id="call-window" class="w-full max-w-5xl h-[85vh] max-h-[750px] rounded-3xl border border-slate-800 bg-slate-900/90 shadow-2xl relative flex flex-col overflow-hidden cyber-glow">
+      
+      <!-- Call Header Bar -->
+      <div class="h-14 px-6 border-b border-slate-800/80 flex items-center justify-between shrink-0 bg-slate-950/60 relative z-30">
+        <div class="flex items-center gap-3">
+          <div class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
+          <div>
+            <h4 id="active-call-peer-name" class="text-xs sm:text-sm font-bold text-white">Calling...</h4>
+            <div class="flex items-center gap-2 text-[11px] text-emerald-400 font-medium">
+              <span>WebRTC DTLS-SRTP P2P Encrypted</span>
+              <span>•</span>
+              <span id="call-timer-display" class="text-slate-300 font-mono">00:00</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-toggle-fullscreen-call" title="Toggle Fullscreen" class="p-2 rounded-xl text-slate-400 hover:text-white hover:bg-slate-800 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Video / Audio Canvas -->
+      <div class="flex-1 relative bg-slate-950 flex items-center justify-center overflow-hidden">
+        
+        <!-- Remote Video Stream -->
+        <video id="remote-video" autoplay playsinline class="w-full h-full object-cover hidden"></video>
+        <audio id="remote-audio" autoplay></audio>
+
+        <!-- Audio-Only Call / Avatar Placeholder -->
+        <div id="audio-call-placeholder" class="flex flex-col items-center justify-center text-center space-y-4 p-8">
+          <div class="relative">
+            <div class="w-28 h-28 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-4xl shadow-2xl ring-4 ring-indigo-500/30">
+              <span id="call-avatar-letter">U</span>
+            </div>
+            <!-- Soundwave Audio Ripple Indicator -->
+            <div class="absolute -inset-3 rounded-full border-2 border-emerald-500/40 animate-ping [animation-duration:2s]"></div>
+          </div>
+          <div>
+            <h3 id="call-avatar-name" class="text-lg font-bold text-white">Peer Name</h3>
+            <p id="call-status-indicator" class="text-xs text-indigo-400 font-medium">Connecting P2P Session...</p>
+          </div>
+        </div>
+
+        <!-- Local Picture-in-Picture Video Stream -->
+        <div id="local-video-container" class="absolute top-4 right-4 z-20 w-32 h-44 sm:w-44 sm:h-60 rounded-2xl overflow-hidden border-2 border-indigo-500/40 shadow-2xl bg-slate-900 group transition">
+          <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
+          <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-sm text-[10px] text-white font-medium">You</div>
+        </div>
+
+      </div>
+
+      <!-- Bottom Call Controls Bar -->
+      <div class="h-20 px-6 border-t border-slate-800/80 bg-slate-950/80 flex items-center justify-center gap-3 sm:gap-4 shrink-0 relative z-30">
+        <!-- Toggle Mic -->
+        <button id="btn-call-toggle-mic" title="Mute/Unmute Mic" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white transition shadow-md">
+          <svg id="icon-mic-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path></svg>
+          <svg id="icon-mic-off" class="w-5 h-5 text-rose-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"></path></svg>
+        </button>
+
+        <!-- Toggle Video / Camera -->
+        <button id="btn-call-toggle-video" title="Turn Camera On/Off" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white transition shadow-md">
+          <svg id="icon-cam-on" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+          <svg id="icon-cam-off" class="w-5 h-5 text-rose-400 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+        </button>
+
+        <!-- Toggle Screen Share -->
+        <button id="btn-call-share-screen" title="Share Screen" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition shadow-md">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
+        </button>
+
+        <!-- Hang Up / End Call -->
+        <button id="btn-call-hangup" title="End Call" class="py-3 px-6 rounded-2xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs transition shadow-lg shadow-rose-600/30 flex items-center gap-2 transform active:scale-95">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2M5 3a2 2 0 00-2 2v1c0 8.284 6.716 15 15 15h1a2 2 0 002-2v-3.28a1 1 0 00-.684-.948l-4.493-1.498a1 1 0 00-1.21.502l-1.13 2.257a11.042 11.042 0 01-5.516-5.516l2.257-1.13a1 1 0 00.502-1.21L9.228 3.684A1 1 0 008.28 3H5z"></path></svg>
+          <span>End Call</span>
+        </button>
+      </div>
+
+    </div>
   </div>
 
   <!-- Client Application & WebCrypto Encryption Engine -->
@@ -658,12 +801,60 @@
       setInterval(loadUserDirectory, 5000);
     }
 
+    let authMode = 'login';
+    const tabLogin = document.getElementById('tab-auth-login');
+    const tabRegister = document.getElementById('tab-auth-register');
+    const fieldConfirm = document.getElementById('field-confirm-password');
+    const fieldDisplay = document.getElementById('field-displayname');
+    const inputConfirm = document.getElementById('input-confirm-password');
+    const authTitle = document.getElementById('auth-modal-title');
+    const authSubtitle = document.getElementById('auth-modal-subtitle');
+    const authBtnText = document.getElementById('btn-auth-text');
+    const authError = document.getElementById('auth-error');
+
+    function setAuthMode(mode) {
+      authMode = mode;
+      authError.classList.add('hidden');
+      if (mode === 'login') {
+        tabLogin.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition';
+        tabRegister.className = 'flex-1 py-1.5 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition';
+        fieldConfirm.classList.add('hidden');
+        fieldDisplay.classList.add('hidden');
+        inputConfirm.removeAttribute('required');
+        authTitle.textContent = 'Welcome Back';
+        authSubtitle.textContent = 'Enter your credentials to access your encrypted conversations.';
+        authBtnText.textContent = 'Sign In';
+      } else {
+        tabRegister.className = 'flex-1 py-1.5 text-xs font-semibold rounded-lg bg-indigo-600 text-white shadow-sm transition';
+        tabLogin.className = 'flex-1 py-1.5 text-xs font-semibold text-slate-400 hover:text-white rounded-lg transition';
+        fieldConfirm.classList.remove('hidden');
+        fieldDisplay.classList.remove('hidden');
+        inputConfirm.setAttribute('required', 'true');
+        authTitle.textContent = 'Create Account';
+        authSubtitle.textContent = 'Choose a username and password to create your account.';
+        authBtnText.textContent = 'Create Account';
+      }
+    }
+
+    tabLogin.addEventListener('click', () => setAuthMode('login'));
+    tabRegister.addEventListener('click', () => setAuthMode('register'));
+
     document.getElementById('auth-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      authError.classList.add('hidden');
       const username = document.getElementById('input-username').value.trim();
       const password = document.getElementById('input-password').value.trim();
       const display_name = document.getElementById('input-displayname').value.trim();
       
+      if (authMode === 'register') {
+        const confirmPassword = inputConfirm.value.trim();
+        if (password !== confirmPassword) {
+          authError.textContent = 'Passwords do not match. Please verify your password.';
+          authError.classList.remove('hidden');
+          return;
+        }
+      }
+
       const res = await fetch('/api/auth/simple-login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -678,8 +869,8 @@
         onAuthenticated();
       } else {
         const err = await res.json();
-        document.getElementById('auth-error').textContent = err.detail || 'Authentication failed. Check your password.';
-        document.getElementById('auth-error').classList.remove('hidden');
+        authError.textContent = err.detail || 'Authentication failed. Check your password.';
+        authError.classList.remove('hidden');
       }
     });
 
@@ -722,6 +913,20 @@
           if (activeUser && activeUser.id === data.sender_id) {
             document.getElementById('typing-indicator').classList.toggle('hidden', !data.is_typing);
           }
+        } else if (data.type === 'webrtc_call_request') {
+          handleIncomingCallRequest(data);
+        } else if (data.type === 'webrtc_call_accept') {
+          handleCallAcceptedByPeer(data);
+        } else if (data.type === 'webrtc_call_reject') {
+          handleCallRejectedByPeer(data);
+        } else if (data.type === 'webrtc_call_end') {
+          handleCallEndedByPeer(data);
+        } else if (data.type === 'webrtc_offer') {
+          handleWebRtcOffer(data);
+        } else if (data.type === 'webrtc_answer') {
+          handleWebRtcAnswer(data);
+        } else if (data.type === 'webrtc_ice_candidate') {
+          handleWebRtcIceCandidate(data);
         } else if (data.type === 'system_announcement') {
           showSystemAnnouncementBanner(data);
         } else if (data.type === 'force_logout') {
@@ -877,15 +1082,11 @@
       if (filteredUsers.length === 0) {
         if (allUsers.length === 0) {
           container.innerHTML = `
-            <div class="p-6 text-center space-y-3">
+            <div class="p-6 text-center space-y-2">
               <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center mx-auto">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 43v-18m-9 9h18"></path></svg>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
               </div>
-              <p class="text-xs text-slate-400 leading-relaxed font-medium">No other contacts registered yet.</p>
-              <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-300 text-left space-y-1">
-                <div class="font-bold">💡 How to chat:</div>
-                <p>Open an Incognito window or second browser tab at <strong>http://localhost:8000</strong> and sign in as another user (e.g. <code>@bob</code>) to start chatting!</p>
-              </div>
+              <p class="text-xs text-slate-400 font-medium">No other contacts registered yet.</p>
             </div>
           `;
         } else {
@@ -1243,45 +1444,551 @@
       mediaRecorder.stop();
     });
 
-    // --- Message Send Handler ---
-    document.getElementById('message-form').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const input = document.getElementById('message-input');
-      const plaintext = input.value.trim();
-      if (!plaintext || !activeUser || !activeRoomId) return;
+    // =========================================================================
+    // --- WebRTC Peer-to-Peer Encrypted Audio & Video Calling Engine ---
+    // =========================================================================
 
-      const recipientId = activeUser.id;
-      let key = sharedKeys[recipientId];
-      if (!key) {
-        key = await getOrCreateSharedKey(recipientId);
+    let rtcPeer = null;
+    let localMediaStream = null;
+    let remoteMediaStream = null;
+    let currentCallTargetId = null;
+    let currentCallTargetName = '';
+    let currentCallType = 'video'; // 'audio' or 'video'
+    let currentCallRoomId = null;
+    let callDurationSec = 0;
+    let callDurationInterval = null;
+    let incomingCallPayload = null;
+    let ringtoneAudioInterval = null;
+    let dialtoneAudioInterval = null;
+    let isCallMicMuted = false;
+    let isCallCamOff = false;
+    let isScreenSharingActive = false;
+
+    const rtcConfiguration = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun2.l.google.com:19302' },
+        { urls: 'stun:stun3.l.google.com:19302' }
+      ]
+    };
+
+    // --- Web Audio Synthesizer Ringtones & Tones ---
+    function startIncomingRingtone() {
+      stopIncomingRingtone();
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+
+        function playRingBurst() {
+          try {
+            const osc1 = ctx.createOscillator();
+            const osc2 = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(440, ctx.currentTime); // A4
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(480, ctx.currentTime); // B4
+
+            gain.gain.setValueAtTime(0.12, ctx.currentTime);
+            gain.gain.setValueAtTime(0.12, ctx.currentTime + 1.2);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 1.5);
+
+            osc1.connect(gain);
+            osc2.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc1.start(ctx.currentTime);
+            osc2.start(ctx.currentTime);
+            osc1.stop(ctx.currentTime + 1.5);
+            osc2.stop(ctx.currentTime + 1.5);
+          } catch(e) {}
+        }
+
+        playRingBurst();
+        ringtoneAudioInterval = setInterval(playRingBurst, 3000);
+      } catch(e) {}
+    }
+
+    function stopIncomingRingtone() {
+      if (ringtoneAudioInterval) {
+        clearInterval(ringtoneAudioInterval);
+        ringtoneAudioInterval = null;
       }
+    }
+
+    function startOutgoingDialtone() {
+      stopOutgoingDialtone();
+      try {
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+
+        function playBeep() {
+          try {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(440, ctx.currentTime);
+            gain.gain.setValueAtTime(0.08, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.8);
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.8);
+          } catch(e) {}
+        }
+
+        playBeep();
+        dialtoneAudioInterval = setInterval(playBeep, 2500);
+      } catch(e) {}
+    }
+
+    function stopOutgoingDialtone() {
+      if (dialtoneAudioInterval) {
+        clearInterval(dialtoneAudioInterval);
+        dialtoneAudioInterval = null;
+      }
+    }
+
+    function playCallEndTone() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(300, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, ctx.currentTime + 0.3);
+        gain.gain.setValueAtTime(0.1, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch(e) {}
+    }
+
+    // --- WebRTC PeerConnection Setup ---
+    function createPeerConnection(remoteUserId) {
+      if (rtcPeer) {
+        try { rtcPeer.close(); } catch(e) {}
+        rtcPeer = null;
+      }
+
+      rtcPeer = new RTCPeerConnection(rtcConfiguration);
+
+      // Add local media tracks to connection
+      if (localMediaStream) {
+        localMediaStream.getTracks().forEach(track => {
+          rtcPeer.addTrack(track, localMediaStream);
+        });
+      }
+
+      // Handle ICE Candidates
+      rtcPeer.onicecandidate = (event) => {
+        if (event.candidate && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'webrtc_ice_candidate',
+            recipient_id: remoteUserId,
+            candidate: event.candidate
+          }));
+        }
+      };
+
+      // Handle Remote Media Streams
+      rtcPeer.ontrack = (event) => {
+        remoteMediaStream = event.streams[0];
+        const remoteVideo = document.getElementById('remote-video');
+        const remoteAudio = document.getElementById('remote-audio');
+        const audioPlaceholder = document.getElementById('audio-call-placeholder');
+
+        if (remoteVideo) remoteVideo.srcObject = remoteMediaStream;
+        if (remoteAudio) remoteAudio.srcObject = remoteMediaStream;
+
+        const hasVideo = remoteMediaStream && remoteMediaStream.getVideoTracks().length > 0;
+        if (hasVideo && currentCallType === 'video') {
+          remoteVideo.classList.remove('hidden');
+          audioPlaceholder.classList.add('hidden');
+        } else {
+          remoteVideo.classList.add('hidden');
+          audioPlaceholder.classList.remove('hidden');
+        }
+
+        document.getElementById('call-status-indicator').textContent = 'Connected (Encrypted P2P)';
+        startCallTimer();
+      };
+
+      rtcPeer.oniceconnectionstatechange = () => {
+        if (!rtcPeer) return;
+        if (rtcPeer.iceConnectionState === 'disconnected' || rtcPeer.iceConnectionState === 'failed') {
+          endCurrentCall(false);
+          showToast('Call disconnected', 'warning');
+        }
+      };
+
+      return rtcPeer;
+    }
+
+    function startCallTimer() {
+      if (callDurationInterval) return;
+      callDurationSec = 0;
+      updateCallTimerDisplay();
+      callDurationInterval = setInterval(() => {
+        callDurationSec++;
+        updateCallTimerDisplay();
+      }, 1000);
+    }
+
+    function updateCallTimerDisplay() {
+      const mins = String(Math.floor(callDurationSec / 60)).padStart(2, '0');
+      const secs = String(callDurationSec % 60).padStart(2, '0');
+      const display = document.getElementById('call-timer-display');
+      if (display) display.textContent = `${mins}:${secs}`;
+    }
+
+    function resetCallControlsUI() {
+      isCallMicMuted = false;
+      isCallCamOff = false;
+      isScreenSharingActive = false;
+      document.getElementById('icon-mic-on').classList.remove('hidden');
+      document.getElementById('icon-mic-off').classList.add('hidden');
+      document.getElementById('icon-cam-on').classList.remove('hidden');
+      document.getElementById('icon-cam-off').classList.add('hidden');
+    }
+
+    // --- Start Call (Caller Action) ---
+    async function startCall(type = 'video') {
+      if (!activeUser) {
+        showToast('Please select a contact to call', 'warning');
+        return;
+      }
+
+      currentCallTargetId = activeUser.id;
+      currentCallTargetName = activeUser.display_name;
+      currentCallType = type;
+      currentCallRoomId = activeRoomId;
+      resetCallControlsUI();
 
       try {
-        const ciphertext = await encryptPayload(key, plaintext);
-        input.value = '';
-
-        const res = await apiFetch('/api/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            room_id: activeRoomId,
-            recipient_id: recipientId,
-            encrypted_content: ciphertext,
-            message_type: 'text'
-          })
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: type === 'video' ? { width: { ideal: 1280 }, height: { ideal: 720 } } : false
         });
+      } catch(err) {
+        alert('Media device access denied or unavailable: ' + err.message);
+        return;
+      }
 
-        if (res.ok) {
-          const msg = await res.json();
-          await renderMessage(msg);
-        } else {
-          const errData = await res.json().catch(() => ({}));
-          console.error('Failed to send message:', errData);
+      const localVideo = document.getElementById('local-video');
+      const localContainer = document.getElementById('local-video-container');
+      const remoteVideo = document.getElementById('remote-video');
+      const audioPlaceholder = document.getElementById('audio-call-placeholder');
+
+      if (type === 'video') {
+        localVideo.srcObject = localMediaStream;
+        localContainer.classList.remove('hidden');
+        remoteVideo.classList.add('hidden');
+        audioPlaceholder.classList.remove('hidden');
+      } else {
+        localContainer.classList.add('hidden');
+        remoteVideo.classList.add('hidden');
+        audioPlaceholder.classList.remove('hidden');
+      }
+
+      document.getElementById('call-avatar-letter').textContent = activeUser.display_name[0].toUpperCase();
+      document.getElementById('call-avatar-name').textContent = activeUser.display_name;
+      document.getElementById('active-call-peer-name').textContent = `${type === 'video' ? 'Video' : 'Voice'} Call with ${activeUser.display_name}`;
+      document.getElementById('call-status-indicator').textContent = 'Ringing peer...';
+      document.getElementById('modal-active-call').classList.remove('hidden');
+
+      startOutgoingDialtone();
+
+      // Send call invitation signaling
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'webrtc_call_request',
+          recipient_id: activeUser.id,
+          room_id: activeRoomId,
+          call_type: type,
+          caller_name: currentUser.display_name,
+          caller_username: currentUser.username
+        }));
+      }
+    }
+
+    // --- Callee Handlers ---
+    function handleIncomingCallRequest(data) {
+      incomingCallPayload = data;
+      document.getElementById('incoming-caller-name').textContent = data.caller_name || 'Anonymous User';
+      document.getElementById('incoming-caller-username').textContent = '@' + (data.caller_username || 'user');
+      document.getElementById('incoming-call-avatar').textContent = (data.caller_name || 'U')[0].toUpperCase();
+      document.getElementById('incoming-call-type-text').textContent = `Incoming ${data.call_type === 'video' ? 'Video' : 'Voice'} Call...`;
+
+      document.getElementById('modal-incoming-call').classList.remove('hidden');
+      startIncomingRingtone();
+    }
+
+    async function acceptIncomingCall() {
+      stopIncomingRingtone();
+      document.getElementById('modal-incoming-call').classList.add('hidden');
+      if (!incomingCallPayload) return;
+
+      const data = incomingCallPayload;
+      currentCallTargetId = data.sender_id;
+      currentCallTargetName = data.caller_name;
+      currentCallType = data.call_type || 'video';
+      currentCallRoomId = data.room_id;
+      resetCallControlsUI();
+
+      try {
+        localMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: true,
+          video: currentCallType === 'video' ? { width: { ideal: 1280 }, height: { ideal: 720 } } : false
+        });
+      } catch(err) {
+        alert('Media device access error: ' + err.message);
+        declineIncomingCall();
+        return;
+      }
+
+      const localVideo = document.getElementById('local-video');
+      const localContainer = document.getElementById('local-video-container');
+      const remoteVideo = document.getElementById('remote-video');
+      const audioPlaceholder = document.getElementById('audio-call-placeholder');
+
+      if (currentCallType === 'video') {
+        localVideo.srcObject = localMediaStream;
+        localContainer.classList.remove('hidden');
+        remoteVideo.classList.add('hidden');
+        audioPlaceholder.classList.remove('hidden');
+      } else {
+        localContainer.classList.add('hidden');
+        remoteVideo.classList.add('hidden');
+        audioPlaceholder.classList.remove('hidden');
+      }
+
+      document.getElementById('call-avatar-letter').textContent = (data.caller_name || 'U')[0].toUpperCase();
+      document.getElementById('call-avatar-name').textContent = data.caller_name || 'Caller';
+      document.getElementById('active-call-peer-name').textContent = `${currentCallType === 'video' ? 'Video' : 'Voice'} Call with ${data.caller_name}`;
+      document.getElementById('call-status-indicator').textContent = 'Connecting P2P Session...';
+      document.getElementById('modal-active-call').classList.remove('hidden');
+
+      createPeerConnection(currentCallTargetId);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'webrtc_call_accept',
+          recipient_id: currentCallTargetId,
+          room_id: currentCallRoomId,
+          call_type: currentCallType
+        }));
+      }
+    }
+
+    function declineIncomingCall() {
+      stopIncomingRingtone();
+      document.getElementById('modal-incoming-call').classList.add('hidden');
+      if (incomingCallPayload && ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'webrtc_call_reject',
+          recipient_id: incomingCallPayload.sender_id,
+          room_id: incomingCallPayload.room_id
+        }));
+      }
+      incomingCallPayload = null;
+    }
+
+    // --- Caller WebRTC Offer Initiation ---
+    async function handleCallAcceptedByPeer(data) {
+      stopOutgoingDialtone();
+      document.getElementById('call-status-indicator').textContent = 'Negotiating cryptographic handshake...';
+
+      createPeerConnection(currentCallTargetId);
+
+      try {
+        const offer = await rtcPeer.createOffer({
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: currentCallType === 'video'
+        });
+        await rtcPeer.setLocalDescription(offer);
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'webrtc_offer',
+            recipient_id: currentCallTargetId,
+            room_id: currentCallRoomId,
+            sdp: offer
+          }));
         }
       } catch(err) {
-        console.error('Send message exception:', err);
+        console.error('Failed to create WebRTC offer:', err);
       }
-    });
+    }
+
+    function handleCallRejectedByPeer(data) {
+      stopOutgoingDialtone();
+      endCurrentCall(false);
+      showToast('Call declined or recipient is unavailable', 'warning');
+    }
+
+    function handleCallEndedByPeer(data) {
+      endCurrentCall(false);
+      showToast('Call ended', 'info');
+    }
+
+    // --- SDP Exchange ---
+    async function handleWebRtcOffer(data) {
+      if (!rtcPeer) createPeerConnection(data.sender_id);
+
+      try {
+        await rtcPeer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+        const answer = await rtcPeer.createAnswer();
+        await rtcPeer.setLocalDescription(answer);
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'webrtc_answer',
+            recipient_id: data.sender_id,
+            room_id: data.room_id,
+            sdp: answer
+          }));
+        }
+      } catch(err) {
+        console.error('Failed to process WebRTC offer:', err);
+      }
+    }
+
+    async function handleWebRtcAnswer(data) {
+      if (!rtcPeer) return;
+      try {
+        await rtcPeer.setRemoteDescription(new RTCSessionDescription(data.sdp));
+      } catch(err) {
+        console.error('Failed to process WebRTC answer:', err);
+      }
+    }
+
+    async function handleWebRtcIceCandidate(data) {
+      if (!rtcPeer || !data.candidate) return;
+      try {
+        await rtcPeer.addIceCandidate(new RTCIceCandidate(data.candidate));
+      } catch(err) {
+        console.error('Error adding ICE candidate:', err);
+      }
+    }
+
+    // --- Call Controls & Hangup ---
+    function endCurrentCall(notifyPeer = true) {
+      stopIncomingRingtone();
+      stopOutgoingDialtone();
+      playCallEndTone();
+
+      if (notifyPeer && currentCallTargetId && ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          type: 'webrtc_call_end',
+          recipient_id: currentCallTargetId,
+          room_id: currentCallRoomId
+        }));
+      }
+
+      if (callDurationInterval) {
+        clearInterval(callDurationInterval);
+        callDurationInterval = null;
+      }
+      callDurationSec = 0;
+
+      if (localMediaStream) {
+        localMediaStream.getTracks().forEach(t => t.stop());
+        localMediaStream = null;
+      }
+
+      if (rtcPeer) {
+        try { rtcPeer.close(); } catch(e) {}
+        rtcPeer = null;
+      }
+
+      document.getElementById('remote-video').srcObject = null;
+      document.getElementById('local-video').srcObject = null;
+      document.getElementById('remote-audio').srcObject = null;
+      document.getElementById('modal-active-call').classList.add('hidden');
+      document.getElementById('modal-incoming-call').classList.add('hidden');
+
+      currentCallTargetId = null;
+      incomingCallPayload = null;
+    }
+
+    function toggleMic() {
+      if (!localMediaStream) return;
+      isCallMicMuted = !isCallMicMuted;
+      localMediaStream.getAudioTracks().forEach(t => { t.enabled = !isCallMicMuted; });
+      document.getElementById('icon-mic-on').classList.toggle('hidden', isCallMicMuted);
+      document.getElementById('icon-mic-off').classList.toggle('hidden', !isCallMicMuted);
+    }
+
+    function toggleCamera() {
+      if (!localMediaStream) return;
+      isCallCamOff = !isCallCamOff;
+      localMediaStream.getVideoTracks().forEach(t => { t.enabled = !isCallCamOff; });
+      document.getElementById('icon-cam-on').classList.toggle('hidden', isCallCamOff);
+      document.getElementById('icon-cam-off').classList.toggle('hidden', !isCallCamOff);
+      document.getElementById('local-video-container').classList.toggle('opacity-30', isCallCamOff);
+    }
+
+    async function toggleScreenShare() {
+      if (!rtcPeer) return;
+      if (!isScreenSharingActive) {
+        try {
+          const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+          const screenTrack = screenStream.getVideoTracks()[0];
+
+          const sender = rtcPeer.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) {
+            sender.replaceTrack(screenTrack);
+          } else {
+            rtcPeer.addTrack(screenTrack, screenStream);
+          }
+
+          document.getElementById('local-video').srcObject = screenStream;
+          isScreenSharingActive = true;
+
+          screenTrack.onended = () => {
+            stopScreenShare();
+          };
+        } catch(e) {}
+      } else {
+        stopScreenShare();
+      }
+    }
+
+    function stopScreenShare() {
+      if (!localMediaStream || !rtcPeer) return;
+      const videoTrack = localMediaStream.getVideoTracks()[0];
+      const sender = rtcPeer.getSenders().find(s => s.track && s.track.kind === 'video');
+      if (sender && videoTrack) {
+        sender.replaceTrack(videoTrack);
+      }
+      document.getElementById('local-video').srcObject = localMediaStream;
+      isScreenSharingActive = false;
+    }
+
+    function toggleFullscreenCall() {
+      const windowEl = document.getElementById('call-window');
+      if (!document.fullscreenElement) {
+        windowEl.requestFullscreen().catch(() => {});
+      } else {
+        document.exitFullscreen().catch(() => {});
+      }
+    }
+
+    // Attach Button Click Handlers
+    document.getElementById('btn-start-audio-call').addEventListener('click', () => startCall('audio'));
+    document.getElementById('btn-start-video-call').addEventListener('click', () => startCall('video'));
+    document.getElementById('btn-accept-call').addEventListener('click', acceptIncomingCall);
+    document.getElementById('btn-decline-call').addEventListener('click', declineIncomingCall);
+    document.getElementById('btn-call-hangup').addEventListener('click', () => endCurrentCall(true));
+    document.getElementById('btn-call-toggle-mic').addEventListener('click', toggleMic);
+    document.getElementById('btn-call-toggle-video').addEventListener('click', toggleCamera);
+    document.getElementById('btn-call-share-screen').addEventListener('click', toggleScreenShare);
+    document.getElementById('btn-toggle-fullscreen-call').addEventListener('click', toggleFullscreenCall);
 
     // Start App
     checkAuth();
