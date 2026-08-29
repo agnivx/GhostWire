@@ -128,6 +128,14 @@ def verify_password(password: str, hashed: str) -> bool:
     return secrets.compare_digest(hash_password(password), hashed)
 
 
+def format_iso_utc(dt: Optional[datetime]) -> Optional[str]:
+    if not dt:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc).isoformat()
+
+
 # --- Database Models (SQLModel) ---
 class User(SQLModel, table=True):
     id: UUID = Field(default_factory=uuid4, primary_key=True)
@@ -875,7 +883,7 @@ async def get_messages(
             "message_type": m.message_type,
             "reactions": json.loads(m.reactions_json or "{}"),
             "is_read": m.is_read,
-            "created_at": m.created_at.isoformat()
+            "created_at": format_iso_utc(m.created_at)
         }
         for m in msgs
     ]
