@@ -7,9 +7,9 @@
   </p>
 
   <p align="center">
-    <a href="#features"><img src="https://img.shields.io/badge/Encryption-WebCrypto%20ECDH%20%2B%20AES--256--GCM-00e5ff?style=for-the-badge&logo=shield" alt="Encryption"></a>
-    <a href="#backend"><img src="https://img.shields.io/badge/Backend-FastAPI%20%2B%20WebSockets-6366f1?style=for-the-badge&logo=fastapi" alt="FastAPI"></a>
-    <a href="#python"><img src="https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python" alt="Python"></a>
+    <a href="https://ghostwire-ugfs.onrender.com"><img src="https://img.shields.io/badge/Live%20Demo-ghostwire--ugfs.onrender.com-00e5ff?style=for-the-badge&logo=render" alt="Live Demo"></a>
+    <a href="#features"><img src="https://img.shields.io/badge/Encryption-WebCrypto%20ECDH%20%2B%20AES--256--GCM-6366f1?style=for-the-badge&logo=shield" alt="Encryption"></a>
+    <a href="#tech-stack"><img src="https://img.shields.io/badge/Backend-FastAPI%20%2B%20WebSockets-blue?style=for-the-badge&logo=fastapi" alt="FastAPI"></a>
     <a href="#license"><img src="https://img.shields.io/badge/License-MIT-emerald?style=for-the-badge" alt="License"></a>
   </p>
 
@@ -50,7 +50,7 @@ GhostWire includes an isolated, real-time **Moderator Operations Console** prote
 
 | Layer | Technologies |
 |---|---|
-| **Frontend** | Vanilla HTML5 / ES6 JavaScript, WebCrypto API, TailwindCSS, Glassmorphism |
+| **Frontend** | Vanilla HTML5 / ES6 JavaScript, WebCrypto API, TailwindCSS, Glassmorphic UI |
 | **Backend** | Python 3.11+, FastAPI, Uvicorn, WebSockets |
 | **Database & ORM** | SQLite / aiosqlite, SQLAlchemy 2.0, SQLModel |
 | **Security & Auth** | PBKDF2-HMAC-SHA256, WebAuthn Passkeys, Constant-Time Digest Verification |
@@ -85,57 +85,6 @@ uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 
 ---
 
-## ☁️ Deployment on Render.com
-
-GhostWire is ready for 1-click cloud deployment with full **WebSocket** and **HTTPS** support.
-
-1. Create a free account on [Render.com](https://render.com).
-2. Click **New +** → **Web Service** and connect your GitHub repository.
-3. Configure the following settings:
-   - **Environment**: `Python 3` (or `Docker`)
-   - **Build Command**: `pip install -r requirements.txt`
-   - **Start Command**: `uvicorn server:app --host 0.0.0.0 --port $PORT`
-   - **Plan**: `Free`
-4. Add the following **Environment Variables**:
-   ```env
-   SECRET_KEY=your_generated_random_session_secret
-   MODERATOR_KEY_HASH=1ee0a6706f91df39f270933f78334ff4d5ddc36527bf2e5400280ddb1efc9ddc
-   RP_NAME=GhostWire
-   ```
-5. Click **Deploy Web Service**. Render will provision free HTTPS and launch your application.
-
----
-
-## ⚙️ Environment Variables Reference
-
-| Variable | Default | Description |
-|---|---|---|
-| `SECRET_KEY` | `dev-secret-key...` | Cryptographic secret for signing session tokens |
-| `MODERATOR_KEY_HASH` | `1ee0a6...` | PBKDF2 hash of your Master Moderator Key |
-| `DATABASE_URL` | `sqlite+aiosqlite:///./chat.db` | Async SQLite or PostgreSQL connection URI |
-| `RP_NAME` | `GhostWire` | WebAuthn Relying Party Name |
-| `RP_ID` | `localhost` | WebAuthn Relying Party domain identifier |
-| `RP_ORIGIN` | `http://localhost:8000` | Allowed origin for WebAuthn credential ceremonies |
-
----
-
-## 🧪 Automated Testing
-
-GhostWire includes an automated verification test suite covering authentication, messaging relays, moderator controls, cascade deletion, and audit logging.
-
-To execute the test suite:
-```bash
-python test_suite.py
-```
-
-```
-========================================================
-  ALL 15 MODERATOR TEST CASES PASSED PERFECTLY! 
-========================================================
-```
-
----
-
 ## 📄 License
 
-Distributed under the **MIT License**. See `LICENSE` for more information.
+Distributed under the **MIT License**.
