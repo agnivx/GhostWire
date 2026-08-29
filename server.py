@@ -1730,5 +1730,19 @@ async def websocket_endpoint(
                         }
                     )
 
+            elif msg_type in (
+                "webrtc_call_request",
+                "webrtc_call_accept",
+                "webrtc_call_reject",
+                "webrtc_call_end",
+                "webrtc_offer",
+                "webrtc_answer",
+                "webrtc_ice_candidate"
+            ):
+                recipient_id = msg_data.get("recipient_id")
+                if recipient_id:
+                    msg_data["sender_id"] = user_id_str
+                    await ws_manager.send_to_user(recipient_id, msg_data)
+
     except WebSocketDisconnect:
         await ws_manager.disconnect(user_id_str, websocket)
