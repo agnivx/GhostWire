@@ -12,7 +12,7 @@ import os
 import secrets
 import sys
 import time
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timezone
 from typing import Any, Dict, List, Optional
 from uuid import UUID, uuid4
 
@@ -514,6 +514,7 @@ class SimpleLoginRequest(BaseModel):
     username: str
     password: str
     display_name: Optional[str] = None
+    mode: Optional[str] = None  # "login", "register", or None
     moderator_key: Optional[str] = None
     admin_key: Optional[str] = None
 
@@ -606,17 +607,15 @@ async def simple_login(
     if not password or len(password) < 4:
         raise HTTPException(status_code=400, detail="Password must be at least 4 characters")
 
-    # Check existing users count to grant moderator to first user or if key matches
-    user_count_res = await session.execute(select(User))
-    all_users = user_count_res.scalars().all()
-    is_first_user = len(all_users) == 0
-    key_supplied = body.moderator_key or body.admin_key
-    is_mod_requested = bool(key_supplied and verify_moderator_key(key_supplied))
-
     res = await session.execute(select(User).where(User.username == username))
     user = res.scalar_one_or_none()
 
-    if not user:
+    if body.mode == "register":
+        if user:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Username '@{username}' is already registered. Please choose a different username or switch to Sign In."
+            )
         user = User(
             username=username,
             display_name=body.display_name or username.capitalize(),
@@ -627,7 +626,12 @@ async def simple_login(
         session.add(user)
         await session.commit()
         await session.refresh(user)
-    else:
+    elif body.mode == "login":
+        if not user:
+            raise HTTPException(
+                status_code=404,
+                detail=f"No account found for '@{username}'. Please switch to the 'Create Account' tab to register."
+            )
         if not verify_password(password, user.password_hash):
             raise HTTPException(status_code=401, detail="Incorrect password. Access denied.")
         if user.is_banned:
@@ -638,6 +642,30 @@ async def simple_login(
         user.last_seen_at = datetime.now(UTC)
         session.add(user)
         await session.commit()
+    else:
+        # Default fallback
+        if not user:
+            user = User(
+                username=username,
+                display_name=body.display_name or username.capitalize(),
+                password_hash=hash_password(password),
+                is_moderator=False,
+                last_seen_at=datetime.now(UTC)
+            )
+            session.add(user)
+            await session.commit()
+            await session.refresh(user)
+        else:
+            if not verify_password(password, user.password_hash):
+                raise HTTPException(status_code=401, detail="Incorrect password. Access denied.")
+            if user.is_banned:
+                raise HTTPException(
+                    status_code=403,
+                    detail=f"Your account has been suspended by a moderator. Reason: {user.ban_reason or 'Platform violation'}"
+                )
+            user.last_seen_at = datetime.now(UTC)
+            session.add(user)
+            await session.commit()
 
     await ensure_prekey_bundle(user.id, session)
 
