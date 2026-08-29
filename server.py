@@ -2,6 +2,7 @@
 GhostWire - End-to-End Encrypted P2P Messaging Platform
 Features: Real-time WebSockets, REST API, WebAuthn Security, E2EE Prekey Bundles,
           SQLite Persistence, Dedicated Real-time Moderator Operations Suite
+          Copyright (c) Agniva J Bhattacharya
 """
 
 import asyncio
@@ -214,53 +215,67 @@ async_session_maker = sessionmaker(bind=engine, class_=AsyncSession, expire_on_c
 
 
 async def init_db():
-    async with engine.begin() as conn:
-        await conn.run_sync(SQLModel.metadata.create_all)
-        
-        def migrate_schema(sync_conn):
-            inspector = inspect(sync_conn)
-            tables = inspector.get_table_names()
+    global engine, async_session_maker
+    try:
+        async with engine.begin() as conn:
+            await conn.run_sync(SQLModel.metadata.create_all)
             
-            if 'user' in tables:
-                user_cols = [c['name'] for c in inspector.get_columns('user')]
-                if 'is_moderator' not in user_cols:
-                    sync_conn.execute(text("ALTER TABLE user ADD COLUMN is_moderator BOOLEAN DEFAULT 0"))
-                    if 'is_admin' in user_cols:
-                        sync_conn.execute(text("UPDATE user SET is_moderator = is_admin WHERE is_admin IS NOT NULL"))
-                if 'is_admin' not in user_cols:
-                    sync_conn.execute(text("ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT 0"))
-                if 'is_banned' not in user_cols:
-                    sync_conn.execute(text("ALTER TABLE user ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
-                if 'ban_reason' not in user_cols:
-                    sync_conn.execute(text("ALTER TABLE user ADD COLUMN ban_reason TEXT DEFAULT NULL"))
-                if 'last_seen_at' not in user_cols:
-                    sync_conn.execute(text("ALTER TABLE user ADD COLUMN last_seen_at DATETIME DEFAULT NULL"))
-            
-            if 'storedmessage' in tables:
-                columns = [c['name'] for c in inspector.get_columns('storedmessage')]
-                if 'message_type' not in columns:
-                    sync_conn.execute(text("ALTER TABLE storedmessage ADD COLUMN message_type TEXT DEFAULT 'text'"))
-                if 'reactions_json' not in columns:
-                    sync_conn.execute(text("ALTER TABLE storedmessage ADD COLUMN reactions_json TEXT DEFAULT '{}'"))
-                if 'is_read' not in columns:
-                    sync_conn.execute(text("ALTER TABLE storedmessage ADD COLUMN is_read BOOLEAN DEFAULT 0"))
+            def migrate_schema(sync_conn):
+                inspector = inspect(sync_conn)
+                tables = inspector.get_table_names()
+                
+                if 'user' in tables:
+                    user_cols = [c['name'] for c in inspector.get_columns('user')]
+                    if 'is_moderator' not in user_cols:
+                        sync_conn.execute(text("ALTER TABLE user ADD COLUMN is_moderator BOOLEAN DEFAULT 0"))
+                        if 'is_admin' in user_cols:
+                            sync_conn.execute(text("UPDATE user SET is_moderator = is_admin WHERE is_admin IS NOT NULL"))
+                    if 'is_admin' not in user_cols:
+                        sync_conn.execute(text("ALTER TABLE user ADD COLUMN is_admin BOOLEAN DEFAULT 0"))
+                    if 'is_banned' not in user_cols:
+                        sync_conn.execute(text("ALTER TABLE user ADD COLUMN is_banned BOOLEAN DEFAULT 0"))
+                    if 'ban_reason' not in user_cols:
+                        sync_conn.execute(text("ALTER TABLE user ADD COLUMN ban_reason TEXT DEFAULT NULL"))
+                    if 'last_seen_at' not in user_cols:
+                        sync_conn.execute(text("ALTER TABLE user ADD COLUMN last_seen_at DATETIME DEFAULT NULL"))
+                
+                if 'storedmessage' in tables:
+                    columns = [c['name'] for c in inspector.get_columns('storedmessage')]
+                    if 'message_type' not in columns:
+                        sync_conn.execute(text("ALTER TABLE storedmessage ADD COLUMN message_type TEXT DEFAULT 'text'"))
+                    if 'reactions_json' not in columns:
+                        sync_conn.execute(text("ALTER TABLE storedmessage ADD COLUMN reactions_json TEXT DEFAULT '{}'"))
+                    if 'is_read' not in columns:
+                        sync_conn.execute(text("ALTER TABLE storedmessage ADD COLUMN is_read BOOLEAN DEFAULT 0"))
 
-            if 'auditlog' in tables:
-                columns = [c['name'] for c in inspector.get_columns('auditlog')]
-                if 'moderator_id' not in columns:
-                    sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN moderator_id TEXT DEFAULT 'mod_master'"))
-                    if 'admin_id' in columns:
-                        sync_conn.execute(text("UPDATE auditlog SET moderator_id = admin_id WHERE admin_id IS NOT NULL"))
-                if 'moderator_username' not in columns:
-                    sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN moderator_username TEXT DEFAULT 'Moderator'"))
-                    if 'admin_username' in columns:
-                        sync_conn.execute(text("UPDATE auditlog SET moderator_username = admin_username WHERE admin_username IS NOT NULL"))
-                if 'admin_id' not in columns:
-                    sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN admin_id TEXT DEFAULT 'mod_master'"))
-                if 'admin_username' not in columns:
-                    sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN admin_username TEXT DEFAULT 'Moderator'"))
-        
-        await conn.run_sync(migrate_schema)
+                if 'auditlog' in tables:
+                    columns = [c['name'] for c in inspector.get_columns('auditlog')]
+                    if 'moderator_id' not in columns:
+                        sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN moderator_id TEXT DEFAULT 'mod_master'"))
+                        if 'admin_id' in columns:
+                            sync_conn.execute(text("UPDATE auditlog SET moderator_id = admin_id WHERE admin_id IS NOT NULL"))
+                    if 'moderator_username' not in columns:
+                        sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN moderator_username TEXT DEFAULT 'Moderator'"))
+                        if 'admin_username' in columns:
+                            sync_conn.execute(text("UPDATE auditlog SET moderator_username = admin_username WHERE admin_username IS NOT NULL"))
+                    if 'admin_id' not in columns:
+                        sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN admin_id TEXT DEFAULT 'mod_master'"))
+                    if 'admin_username' not in columns:
+                        sync_conn.execute(text("ALTER TABLE auditlog ADD COLUMN admin_username TEXT DEFAULT 'Moderator'"))
+
+            await conn.run_sync(migrate_schema)
+            logger.info("Database schema initialized and verified successfully.")
+    except Exception as e:
+        logger.error(f"Failed to connect to configured DATABASE_URL: {e}")
+        if "asyncpg" in str(e) or not DATABASE_URL.startswith("sqlite"):
+            logger.warning("Falling back to local SQLite engine (sqlite+aiosqlite:///./chat.db)...")
+            engine = create_async_engine("sqlite+aiosqlite:///./chat.db", echo=False)
+            async_session_maker = sessionmaker(bind=engine, class_=AsyncSession, expire_on_commit=False)
+            async with engine.begin() as conn:
+                await conn.run_sync(SQLModel.metadata.create_all)
+            logger.info("Fallback SQLite database initialized successfully.")
+        else:
+            raise e
 
 
 async def get_session():
