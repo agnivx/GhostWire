@@ -144,24 +144,25 @@
   <div id="app" class="h-full w-full flex flex-col relative z-10">
     
     <!-- Top Navigation Header -->
-    <header class="glass-panel h-16 px-6 flex items-center justify-between shrink-0 border-b header-border">
-      <div class="flex items-center gap-3">
-        <img src="/static/icon.png" alt="GhostWire Logo" class="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(56,189,248,0.45)]">
+    <header class="glass-panel h-16 px-3 sm:px-6 flex items-center justify-between shrink-0 border-b header-border">
+      <div class="flex items-center gap-2 sm:gap-3">
+        <img src="/static/icon.png" alt="GhostWire Logo" class="w-8 h-8 sm:w-10 sm:h-10 object-contain drop-shadow-[0_0_15px_rgba(56,189,248,0.45)]">
         <div>
-          <h1 class="font-display font-bold text-lg leading-tight tracking-tight flex items-center gap-2">
+          <h1 class="font-display font-bold text-base sm:text-lg leading-tight tracking-tight flex items-center gap-2">
             GhostWire
           </h1>
-          <div class="flex items-center gap-2 text-xs text-emerald-500 dark:text-emerald-400 font-medium">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
-            <span>Signal E2EE Protocol (PBKDF2 + AES-256-GCM)</span>
+          <div class="flex items-center gap-1.5 text-[10px] sm:text-xs text-emerald-500 dark:text-emerald-400 font-medium">
+            <span class="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+            <span class="hidden sm:inline">Signal E2EE Protocol (PBKDF2 + AES-256-GCM)</span>
+            <span class="sm:hidden">256-Bit E2EE</span>
           </div>
         </div>
       </div>
       
       <!-- User Profile & Theme Controls -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <!-- Theme Toggle Button (Light/Dark) -->
-        <button id="theme-toggle" class="p-2.5 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-amber-500 transition-all flex items-center justify-center shadow-sm">
+        <button id="theme-toggle" class="p-2 sm:p-2.5 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-amber-500 transition-all flex items-center justify-center shadow-sm">
           <svg id="theme-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
           </svg>
@@ -170,22 +171,24 @@
           </svg>
         </button>
 
-        <div id="user-nav" class="hidden flex items-center gap-3">
-          <a id="nav-moderator-link" href="/moderator" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600/25 transition-all flex items-center gap-1.5 shadow-sm">
+        <div id="user-nav" class="hidden flex items-center gap-2 sm:gap-3">
+          <a id="nav-moderator-link" href="/moderator" class="hidden px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600/25 transition-all flex items-center gap-1.5 shadow-sm">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
-            🛡️ Moderator Portal
+            <span class="hidden sm:inline">🛡️ Moderator Portal</span>
+            <span class="sm:hidden">🛡️</span>
           </a>
-          <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80">
-            <div id="nav-avatar" class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white shadow-sm">
+          <div class="flex items-center gap-2 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80">
+            <div id="nav-avatar" class="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white shadow-sm">
               U
             </div>
-            <div class="text-left">
-              <div id="nav-display-name" class="font-semibold text-xs text-slate-800 dark:text-slate-200"></div>
-              <div id="nav-username" class="text-[10px] text-slate-500 dark:text-slate-400"></div>
+            <div class="text-left hidden sm:block">
+              <div id="nav-display-name" class="font-semibold text-xs text-slate-800 dark:text-slate-200 truncate max-w-[120px]"></div>
+              <div id="nav-username" class="text-[10px] text-slate-500 dark:text-slate-400 truncate max-w-[120px]"></div>
             </div>
           </div>
-          <button id="btn-logout" class="px-3 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5 shadow-sm">
-            Logout
+          <button id="btn-logout" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1 shadow-sm">
+            <span class="hidden sm:inline">Logout</span>
+            <svg class="w-4 h-4 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
           </button>
         </div>
       </div>
@@ -246,7 +249,7 @@
       <div id="chat-screen" class="hidden flex-1 flex w-full h-full overflow-hidden">
         
         <!-- Sidebar Contacts -->
-        <aside class="w-80 border-r border-slate-200 dark:border-slate-800/80 flex flex-col shrink-0 glass-panel">
+        <aside id="sidebar-panel" class="w-full md:w-80 border-r border-slate-200 dark:border-slate-800/80 flex flex-col shrink-0 glass-panel">
           
           <!-- Filter Header -->
           <div class="p-3 border-b border-slate-200 dark:border-slate-800/80 flex items-center gap-1.5">
@@ -275,7 +278,7 @@
         </aside>
 
         <!-- Right Main Canvas Area -->
-        <section class="flex-1 flex flex-col relative">
+        <section id="chat-panel" class="hidden md:flex flex-1 flex-col relative h-full w-full overflow-hidden">
           
           <!-- Empty State (No Contact Selected) -->
           <div id="no-room" class="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 space-y-4 p-8 text-center">
@@ -292,22 +295,29 @@
           <div id="active-chat" class="hidden flex-1 flex flex-col h-full overflow-hidden">
             
             <!-- Chat Room Header -->
-            <div class="h-16 px-6 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between shrink-0 glass-panel shadow-sm relative">
-              <div class="flex items-center gap-3">
-                <div class="relative">
-                  <div id="active-avatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+            <div class="h-16 px-3 sm:px-6 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between shrink-0 glass-panel shadow-sm relative">
+              <div class="flex items-center gap-2 sm:gap-3 min-w-0">
+                <!-- Back Button for Mobile -->
+                <button id="btn-back-to-contacts" title="Back to Contacts" class="md:hidden p-2 -ml-1 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition shrink-0">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                  </svg>
+                </button>
+
+                <div class="relative shrink-0">
+                  <div id="active-avatar" class="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
                     U
                   </div>
-                  <span id="active-dot" class="w-3 h-3 rounded-full absolute right-0 bottom-0 bg-slate-400 dark:bg-slate-600 ring-2 ring-white dark:ring-slate-950"></span>
+                  <span id="active-dot" class="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-full absolute right-0 bottom-0 bg-slate-400 dark:bg-slate-600 ring-2 ring-white dark:ring-slate-950"></span>
                 </div>
-                <div>
-                  <h4 id="active-name" class="font-display font-bold text-sm text-slate-900 dark:text-white">User</h4>
-                  <div id="active-status" class="text-xs text-slate-500 dark:text-slate-400 font-medium">Offline</div>
+                <div class="min-w-0">
+                  <h4 id="active-name" class="font-display font-bold text-xs sm:text-sm text-slate-900 dark:text-white truncate">User</h4>
+                  <div id="active-status" class="text-[11px] sm:text-xs text-slate-500 dark:text-slate-400 font-medium truncate">Offline</div>
                 </div>
               </div>
 
               <!-- Header Action Buttons & Security Badge -->
-              <div class="flex items-center gap-2 sm:gap-3">
+              <div class="flex items-center gap-1.5 sm:gap-3 shrink-0">
                 <!-- Voice Call Button -->
                 <button id="btn-start-audio-call" title="Start Encrypted Voice Call" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-emerald-500 hover:border-emerald-500/40 transition shadow-sm">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -373,26 +383,26 @@
             </div>
 
             <!-- Input Bar -->
-            <form id="message-form" class="p-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center gap-3 glass-panel">
+            <form id="message-form" class="p-2.5 sm:p-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center gap-1.5 sm:gap-3 glass-panel">
               <!-- File / Image Attachment Button -->
-              <button type="button" id="btn-attach" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" id="btn-attach" title="Attach image or file" class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition shadow-sm shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
                 </svg>
               </button>
 
               <!-- Audio Voice Note Recording Button -->
-              <button type="button" id="btn-record-mic" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-rose-500 transition shadow-sm">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <button type="button" id="btn-record-mic" title="Record voice note" class="p-2 sm:p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-rose-500 transition shadow-sm shrink-0">
+                <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
                 </svg>
               </button>
 
-              <input type="text" id="message-input" placeholder="Type an encrypted message..." autocomplete="off" class="input-field flex-1 px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition shadow-inner">
+              <input type="text" id="message-input" placeholder="Type an encrypted message..." autocomplete="off" class="input-field flex-1 px-3 sm:px-4 py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm focus:outline-none focus:border-indigo-500 transition shadow-inner min-w-0">
 
               <!-- Send Button -->
-              <button type="submit" class="px-5 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/25 transition-all transform active:scale-95 flex items-center gap-2">
-                <span>Send</span>
+              <button type="submit" id="btn-send-message" class="px-3.5 sm:px-5 py-2.5 sm:py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-xs sm:text-sm text-white shadow-lg shadow-indigo-600/25 transition-all transform active:scale-95 flex items-center gap-1.5 shrink-0">
+                <span class="hidden sm:inline">Send</span>
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
                 </svg>
@@ -987,11 +997,26 @@
       if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'read_ack', room_id: roomId }));
       }
+    // --- Date and Time Formatting Helpers (UTC -> Local Timezone) ---
+    function parseUtcDate(isoStr) {
+      if (!isoStr) return new Date();
+      let str = String(isoStr).trim();
+      // If datetime format without timezone indicator (e.g. SQLite "2026-08-29 09:52:00" or "2026-08-29T09:52:00")
+      if (!str.endsWith('Z') && !str.includes('+') && !str.match(/-\d{2}:\d{2}$/)) {
+        str = str.replace(' ', 'T') + 'Z';
+      }
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? new Date() : d;
+    }
+
+    function formatMessageTime(isoStr) {
+      const d = parseUtcDate(isoStr);
+      return d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
     }
 
     function formatLastSeenDateAndTime(isoStr) {
       if (!isoStr) return 'Offline';
-      const d = new Date(isoStr);
+      const d = parseUtcDate(isoStr);
       const now = new Date();
       const isToday = d.toDateString() === now.toDateString();
       const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -1012,7 +1037,7 @@
 
     function formatLastSeenShort(isoStr) {
       if (!isoStr) return 'Offline';
-      const d = new Date(isoStr);
+      const d = parseUtcDate(isoStr);
       const now = new Date();
       const isToday = d.toDateString() === now.toDateString();
       const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
@@ -1126,6 +1151,16 @@
       activeUser = user;
       renderSidebar(document.getElementById('user-search').value.trim().toLowerCase());
 
+      // Responsive mobile screen switch: Show chat view, hide contacts sidebar
+      const sidebarEl = document.getElementById('sidebar-panel');
+      const chatPanelEl = document.getElementById('chat-panel');
+      if (window.innerWidth < 768) {
+        sidebarEl.classList.add('hidden');
+        sidebarEl.classList.remove('flex');
+        chatPanelEl.classList.remove('hidden');
+        chatPanelEl.classList.add('flex');
+      }
+
       document.getElementById('no-room').classList.add('hidden');
       document.getElementById('active-chat').classList.remove('hidden');
       document.getElementById('active-name').textContent = user.display_name;
@@ -1153,6 +1188,13 @@
       await getOrCreateSharedKey(user.id);
       await loadMessages();
       sendReadAck(activeRoomId);
+
+      if (window.innerWidth >= 768) {
+        setTimeout(() => {
+          const input = document.getElementById('message-input');
+          if (input) input.focus();
+        }, 100);
+      }
     }
 
     async function loadMessages() {
@@ -1255,7 +1297,7 @@
           ${innerHtmlContent}
 
           <div class="text-[10px] opacity-70 text-right mt-1 font-medium flex items-center justify-end gap-1">
-            <span>${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            <span>${formatMessageTime(msg.created_at)}</span>
             ${isMine ? checkmarksSvg : ''}
           </div>
 
@@ -1989,6 +2031,119 @@
     document.getElementById('btn-call-toggle-video').addEventListener('click', toggleCamera);
     document.getElementById('btn-call-share-screen').addEventListener('click', toggleScreenShare);
     document.getElementById('btn-toggle-fullscreen-call').addEventListener('click', toggleFullscreenCall);
+
+    // --- Mobile Back to Contacts Handler ---
+    const btnBack = document.getElementById('btn-back-to-contacts');
+    if (btnBack) {
+      btnBack.addEventListener('click', () => {
+        const sidebarEl = document.getElementById('sidebar-panel');
+        const chatPanelEl = document.getElementById('chat-panel');
+        chatPanelEl.classList.add('hidden');
+        chatPanelEl.classList.remove('flex');
+        sidebarEl.classList.remove('hidden');
+        sidebarEl.classList.add('flex');
+      });
+    }
+
+    // --- Responsive Window Resize Handler ---
+    window.addEventListener('resize', () => {
+      const sidebarEl = document.getElementById('sidebar-panel');
+      const chatPanelEl = document.getElementById('chat-panel');
+      if (window.innerWidth >= 768) {
+        sidebarEl.classList.remove('hidden');
+        sidebarEl.classList.add('flex');
+        chatPanelEl.classList.remove('hidden');
+        chatPanelEl.classList.add('flex');
+      } else {
+        if (activeUser) {
+          sidebarEl.classList.add('hidden');
+          sidebarEl.classList.remove('flex');
+          chatPanelEl.classList.remove('hidden');
+          chatPanelEl.classList.add('flex');
+        } else {
+          chatPanelEl.classList.add('hidden');
+          chatPanelEl.classList.remove('flex');
+          sidebarEl.classList.remove('hidden');
+          sidebarEl.classList.add('flex');
+        }
+      }
+    });
+
+    // --- Message Form Submission Handler ---
+    document.getElementById('message-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('message-input');
+      const plaintext = input.value.trim();
+      if (!plaintext || !activeUser || !activeRoomId) return;
+
+      const recipientId = activeUser.id;
+      let key = sharedKeys[recipientId];
+      if (!key) {
+        key = await getOrCreateSharedKey(recipientId);
+      }
+
+      try {
+        const ciphertext = await encryptPayload(key, plaintext);
+        input.value = '';
+
+        // Reset typing indicator immediately
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            type: 'typing',
+            room_id: activeRoomId,
+            recipient_id: recipientId,
+            is_typing: false
+          }));
+        }
+
+        const res = await apiFetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            room_id: activeRoomId,
+            recipient_id: recipientId,
+            encrypted_content: ciphertext,
+            message_type: 'text'
+          })
+        });
+
+        if (res.ok) {
+          const msg = await res.json();
+          await renderMessage(msg);
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          console.error('Failed to send message:', errData);
+          showToast('Failed to send message', 'warning');
+        }
+      } catch(err) {
+        console.error('Send message exception:', err);
+        showToast('Encryption error', 'warning');
+      }
+    });
+
+    // --- Typing Status Real-Time Indicator ---
+    let userTypingTimer = null;
+    document.getElementById('message-input').addEventListener('input', () => {
+      if (!ws || ws.readyState !== WebSocket.OPEN || !activeUser || !activeRoomId) return;
+      ws.send(JSON.stringify({
+        type: 'typing',
+        room_id: activeRoomId,
+        recipient_id: activeUser.id,
+        is_typing: true
+      }));
+
+      clearTimeout(userTypingTimer);
+      userTypingTimer = setTimeout(() => {
+        if (ws && ws.readyState === WebSocket.OPEN && activeUser && activeRoomId) {
+          ws.send(JSON.stringify({
+            type: 'typing',
+            room_id: activeRoomId,
+            recipient_id: activeUser.id,
+            is_typing: false
+          }));
+        }
+      }, 2000);
+    });
 
     // Start App
     checkAuth();
