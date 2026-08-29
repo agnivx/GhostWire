@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: ghostwire-chat
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn server:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: MODERATOR_KEY_HASH
+        sync: false
+      - key: RP_NAME
+        value: GhostWire
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///./chat.db

@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="en" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GhostWire - Encrypted P2P Messaging</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    
+    /* Transparent Doodle Art Background Patterns */
+    .doodle-bg-dark {
+      background-color: #030712;
+      background-image: radial-gradient(#312e81 1.2px, transparent 1.2px), radial-gradient(#4f46e5 1.2px, #030712 1.2px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+    .doodle-bg-light {
+      background-color: #f8fafc;
+      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px), radial-gradient(#94a3b8 1.2px, #f8fafc 1.2px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+
+    /* Glassmorphism Panels - Dark Theme */
+    .dark .glass-panel {
+      background: rgba(15, 23, 42, 0.75);
+      backdrop-filter: blur(20px);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+    }
+    .dark .glass-card {
+      background: rgba(30, 41, 59, 0.6);
+      backdrop-filter: blur(12px);
+      border-color: rgba(255, 255, 255, 0.08);
+      color: #f8fafc;
+    }
+    .dark .input-field {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(51, 65, 85, 0.8);
+      color: #ffffff;
+    }
+    .dark .input-field::placeholder { color: #64748b; }
+
+    /* Glassmorphism Panels - Light Theme */
+    .light .glass-panel {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(20px);
+      border-color: rgba(226, 232, 240, 0.9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+    .light .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-color: rgba(226, 232, 240, 0.95);
+      color: #0f172a;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+    .light .input-field {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+    .light .input-field::placeholder { color: #94a3b8; }
+    .light .header-border { border-color: rgba(226, 232, 240, 0.8); }
+
+    /* Animations */
+    @keyframes neonGlow {
+      0%, 100% { box-shadow: 0 0 15px rgba(99, 102, 241, 0.25); }
+      50% { box-shadow: 0 0 25px rgba(139, 92, 246, 0.4); }
+    }
+    .dark .cyber-glow { animation: neonGlow 4s infinite ease-in-out; }
+
+    @keyframes slideInUp {
+      from { opacity: 0; transform: translateY(10px) scale(0.98); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .msg-enter { animation: slideInUp 0.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
+  </style>
+</head>
+<body id="body-bg" class="h-full overflow-hidden flex flex-col justify-between doodle-bg-dark text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- SVG Doodle Art Background Overlay -->
+  <div class="fixed inset-0 pointer-events-none opacity-20 z-0 overflow-hidden">
+    <svg class="w-full h-full text-indigo-500/30" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+      <pattern id="doodle-pattern" x="0" y="0" width="120" height="120" patternUnits="userSpaceOnUse">
+        <path d="M20 20h20v20H20z" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <circle cx="80" cy="30" r="10" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M30 80l15-15 15 15" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M90 90m-8 0a8 8 0 1,0 16,0a8 8 0 1,0 -16,0" fill="none" stroke="currentColor" stroke-width="1.5"/>
+      </pattern>
+      <rect width="100%" height="100%" fill="url(#doodle-pattern)"/>
+    </svg>
+  </div>
+
+  <!-- Hidden File Input for Media Uploads -->
+  <input type="file" id="file-input" class="hidden" accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.zip">
+
+  <!-- In-App Floating Toast Notification Container -->
+  <div id="toast-container" class="fixed top-20 right-6 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="lightbox-modal" class="hidden fixed inset-0 z-50 bg-black/90 backdrop-blur-xl flex items-center justify-center p-4">
+    <button id="lightbox-close" class="absolute top-6 right-6 text-white text-3xl font-bold p-2 hover:opacity-75">&times;</button>
+    <img id="lightbox-img" src="" class="max-w-full max-h-full rounded-2xl shadow-2xl object-contain">
+  </div>
+
+  <!-- App Main Container -->
+  <div id="app" class="h-full w-full flex flex-col relative z-10">
+    
+    <!-- Top Navigation Header -->
+    <header class="glass-panel h-16 px-6 flex items-center justify-between shrink-0 border-b header-border">
+      <div class="flex items-center gap-3">
+        <img src="/static/icon.png" alt="GhostWire Logo" class="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(56,189,248,0.45)]">
+        <div>
+          <h1 class="font-display font-bold text-lg leading-tight tracking-tight flex items-center gap-2">
+            GhostWire
+          </h1>
+          <div class="flex items-center gap-2 text-xs text-emerald-500 dark:text-emerald-400 font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+            <span>Signal E2EE Protocol (PBKDF2 + AES-256-GCM)</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- User Profile & Theme Controls -->
+      <div class="flex items-center gap-3">
+        <!-- Theme Toggle Button (Light/Dark) -->
+        <button id="theme-toggle" class="p-2.5 rounded-xl border border-slate-300 dark:border-slate-800 bg-white dark:bg-slate-900 text-amber-500 transition-all flex items-center justify-center shadow-sm">
+          <svg id="theme-sun" class="w-4 h-4 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+          </svg>
+          <svg id="theme-moon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+          </svg>
+        </button>
+
+        <div id="user-nav" class="hidden flex items-center gap-3">
+          <a id="nav-moderator-link" href="/moderator" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 hover:bg-indigo-600/25 transition-all flex items-center gap-1.5 shadow-sm">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+            🛡️ Moderator Portal
+          </a>
+          <div class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/90 dark:bg-slate-900/80">
+            <div id="nav-avatar" class="w-7 h-7 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center font-bold text-xs text-white shadow-sm">
+              U
+            </div>
+            <div class="text-left">
+              <div id="nav-display-name" class="font-semibold text-xs text-slate-800 dark:text-slate-200"></div>
+              <div id="nav-username" class="text-[10px] text-slate-500 dark:text-slate-400"></div>
+            </div>
+          </div>
+          <button id="btn-logout" class="px-3 py-2 rounded-xl text-xs font-medium border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-all flex items-center gap-1.5 shadow-sm">
+            Logout
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Workspace Container -->
+    <main class="flex-1 overflow-hidden relative flex">
+
+      <!-- Authentication Screen with Password Security -->
+      <div id="auth-screen" class="absolute inset-0 z-40 flex items-center justify-center p-4 bg-slate-950/80 dark:bg-slate-950/90 backdrop-blur-2xl">
+        <div class="glass-panel w-full max-w-md p-8 rounded-3xl shadow-2xl space-y-6 border border-slate-200 dark:border-slate-800/80 relative overflow-hidden cyber-glow">
+          
+          <div class="text-center space-y-2 relative z-10">
+            <div class="flex justify-center mb-3">
+              <img src="/static/logo.png" alt="GhostWire" class="h-14 object-contain drop-shadow-[0_0_24px_rgba(56,189,248,0.4)]">
+            </div>
+            <h2 class="font-display text-2xl font-bold tracking-tight text-slate-900 dark:text-white">Secure Sign In</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-xs mx-auto">Enter your username and password to sign in or create your account.</p>
+          </div>
+
+          <form id="auth-form" class="space-y-4 relative z-10">
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Username</label>
+              <input type="text" id="input-username" required placeholder="e.g. alice, bob, charlie" class="input-field w-full px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Password</label>
+              <input type="password" id="input-password" required placeholder="••••••••" class="input-field w-full px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+            </div>
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider mb-1 text-slate-500 dark:text-slate-400">Display Name (Optional for new users)</label>
+              <input type="text" id="input-displayname" placeholder="e.g. Alice Smith" class="input-field w-full px-4 py-3 rounded-xl focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none text-sm transition shadow-inner">
+            </div>
+            
+            <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 via-indigo-500 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/30 transition-all transform active:scale-[0.99] flex items-center justify-center gap-2">
+              <span>Sign In / Create Account</span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+              </svg>
+            </button>
+          </form>
+
+          <div id="auth-error" class="hidden text-xs text-rose-500 dark:text-rose-400 text-center font-medium bg-rose-500/10 p-2.5 rounded-xl border border-rose-500/20"></div>
+        </div>
+      </div>
+
+      <!-- Main Workspace Chat Layout -->
+      <div id="chat-screen" class="hidden flex-1 flex w-full h-full overflow-hidden">
+        
+        <!-- Sidebar Contacts -->
+        <aside class="w-80 border-r border-slate-200 dark:border-slate-800/80 flex flex-col shrink-0 glass-panel">
+          
+          <!-- Filter Header -->
+          <div class="p-3 border-b border-slate-200 dark:border-slate-800/80 flex items-center gap-1.5">
+            <button id="filter-all" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 transition shadow-sm">
+              All Contacts
+            </button>
+            <button id="filter-online" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition">
+              Online
+            </button>
+          </div>
+
+          <!-- Search Header -->
+          <div class="p-3 border-b border-slate-200 dark:border-slate-800/80">
+            <div class="relative">
+              <input type="text" id="user-search" placeholder="Search contacts by username..." class="input-field w-full px-3.5 py-2.5 pl-9 rounded-xl text-xs focus:outline-none focus:border-indigo-500 transition shadow-inner">
+              <svg class="w-4 h-4 absolute left-3 top-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Contacts List -->
+          <div id="sidebar-list" class="flex-1 overflow-y-auto p-2 space-y-1">
+            <!-- Dynamic Contacts -->
+          </div>
+        </aside>
+
+        <!-- Right Main Canvas Area -->
+        <section class="flex-1 flex flex-col relative">
+          
+          <!-- Empty State (No Contact Selected) -->
+          <div id="no-room" class="flex-1 flex flex-col items-center justify-center text-slate-400 dark:text-slate-500 space-y-4 p-8 text-center">
+            <div class="w-24 h-24 rounded-3xl glass-card border border-slate-200 dark:border-slate-800/80 flex items-center justify-center shadow-2xl cyber-glow p-4">
+              <img src="/static/icon.png" alt="GhostWire" class="w-16 h-16 object-contain drop-shadow-[0_0_20px_rgba(56,189,248,0.5)]">
+            </div>
+            <div class="space-y-1 max-w-sm">
+              <h3 class="font-display font-semibold text-slate-800 dark:text-slate-200 text-base">GhostWire Encrypted Messaging</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Select any contact from the left sidebar to start an end-to-end encrypted conversation.</p>
+            </div>
+          </div>
+
+          <!-- Active Chat Conversation Window -->
+          <div id="active-chat" class="hidden flex-1 flex flex-col h-full overflow-hidden">
+            
+            <!-- Chat Room Header -->
+            <div class="h-16 px-6 border-b border-slate-200 dark:border-slate-800/80 flex items-center justify-between shrink-0 glass-panel shadow-sm relative">
+              <div class="flex items-center gap-3">
+                <div class="relative">
+                  <div id="active-avatar" class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-sm shadow-md">
+                    U
+                  </div>
+                  <span id="active-dot" class="w-3 h-3 rounded-full absolute right-0 bottom-0 bg-slate-400 dark:bg-slate-600 ring-2 ring-white dark:ring-slate-950"></span>
+                </div>
+                <div>
+                  <h4 id="active-name" class="font-display font-bold text-sm text-slate-900 dark:text-white">User</h4>
+                  <div id="active-status" class="text-xs text-slate-500 dark:text-slate-400 font-medium">Offline</div>
+                </div>
+              </div>
+
+              <!-- Header Search & Security Badge -->
+              <div class="flex items-center gap-3">
+                <!-- In-Chat Search Button -->
+                <button id="btn-toggle-inchat-search" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-300 hover:text-indigo-500 transition">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                  </svg>
+                </button>
+
+                <div class="px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 text-xs font-medium flex items-center gap-1.5 shadow-sm">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                  </svg>
+                  <span>256-Bit E2EE Active</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- In-Chat Search Bar Overlay -->
+            <div id="inchat-search-bar" class="hidden p-2.5 px-6 border-b border-slate-200 dark:border-slate-800 bg-slate-100/90 dark:bg-slate-900/90 flex items-center gap-3">
+              <input type="text" id="inchat-search-input" placeholder="Search message history..." class="input-field flex-1 px-3 py-1.5 rounded-lg text-xs focus:outline-none focus:border-indigo-500">
+              <span id="inchat-search-count" class="text-xs text-slate-500">0 matches</span>
+              <button id="inchat-search-close" class="text-xs font-bold text-slate-400 hover:text-slate-200">&times;</button>
+            </div>
+
+            <!-- Messages List Feed -->
+            <div id="message-list" class="flex-1 overflow-y-auto p-6 space-y-4">
+              <!-- Messages Rendered Here -->
+            </div>
+
+            <!-- Typing Indicator -->
+            <div id="typing-indicator" class="hidden px-6 py-1 text-xs text-slate-500 dark:text-slate-400 italic flex items-center gap-2">
+              <span class="flex gap-1">
+                <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce"></span>
+                <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+                <span class="w-1.5 h-1.5 bg-indigo-500 rounded-full animate-bounce [animation-delay:0.4s]"></span>
+              </span>
+              <span>User is typing...</span>
+            </div>
+
+            <!-- Voice Recording Status Bar -->
+            <div id="recording-bar" class="hidden p-3 px-6 bg-rose-500/10 border-t border-rose-500/20 flex items-center justify-between">
+              <div class="flex items-center gap-2 text-rose-500 dark:text-rose-400 text-xs font-semibold animate-pulse">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                <span>Recording Voice Note... <span id="recording-timer">00:00</span></span>
+              </div>
+              <div class="flex items-center gap-2">
+                <button id="btn-cancel-recording" type="button" class="px-3 py-1 rounded-lg text-xs font-medium bg-slate-800 text-slate-300 hover:bg-slate-700">Cancel</button>
+                <button id="btn-stop-send-recording" type="button" class="px-3 py-1 rounded-lg text-xs font-medium bg-rose-600 text-white hover:bg-rose-500">Send Voice Note</button>
+              </div>
+            </div>
+
+            <!-- Input Bar -->
+            <form id="message-form" class="p-4 border-t border-slate-200 dark:border-slate-800/80 flex items-center gap-3 glass-panel">
+              <!-- File / Image Attachment Button -->
+              <button type="button" id="btn-attach" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-indigo-500 transition shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13"></path>
+                </svg>
+              </button>
+
+              <!-- Audio Voice Note Recording Button -->
+              <button type="button" id="btn-record-mic" class="p-2.5 rounded-xl border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 text-slate-600 dark:text-slate-400 hover:text-rose-500 transition shadow-sm">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z"></path>
+                </svg>
+              </button>
+
+              <input type="text" id="message-input" placeholder="Type an encrypted message..." autocomplete="off" class="input-field flex-1 px-4 py-3.5 rounded-xl text-sm focus:outline-none focus:border-indigo-500 transition shadow-inner">
+
+              <!-- Send Button -->
+              <button type="submit" class="px-5 py-3.5 rounded-xl bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 font-semibold text-sm text-white shadow-lg shadow-indigo-600/25 transition-all transform active:scale-95 flex items-center gap-2">
+                <span>Send</span>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                </svg>
+              </button>
+            </form>
+          </div>
+
+        </section>
+
+      </div>
+
+    </main>
+  </div>
+
+  <!-- Client Application & WebCrypto Encryption Engine -->
+  <script>
+    // --- Application State ---
+    let currentUser = null;
+    let sessionToken = localStorage.getItem('chat_session_token') || '';
+    let currentTheme = localStorage.getItem('chat_theme') || 'dark';
+    let ws = null;
+    let activeUser = null;
+    let activeRoomId = null;
+    let allUsers = [];
+    let activeFilter = 'all';
+    let sharedKeys = {};
+    let renderedMsgIds = new Set();
+
+    // --- Voice Recording State ---
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordingTimerInterval = null;
+    let recordingSeconds = 0;
+
+    // --- HTML Sanitization Helper ---
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // --- Audio Notification Sound Generator ---
+    function playNotificationSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      } catch(e) {}
+    }
+
+    // --- In-App Floating Toast Notification ---
+    function showInAppToast(senderUser, text) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = 'glass-card p-3.5 rounded-2xl shadow-2xl border border-indigo-500/40 pointer-events-auto flex items-center gap-3 msg-enter max-w-xs cursor-pointer hover:border-indigo-500/80 transition-all';
+      
+      const displayName = senderUser ? senderUser.display_name : 'New Message';
+      const initial = displayName[0].toUpperCase();
+
+      toast.innerHTML = `
+        <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-md">
+          ${initial}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-xs truncate text-indigo-600 dark:text-indigo-400">${escapeHtml(displayName)}</div>
+          <div class="text-xs text-slate-700 dark:text-slate-200 truncate">${escapeHtml(text)}</div>
+        </div>
+      `;
+
+      toast.onclick = () => {
+        if (senderUser && senderUser.id) {
+          selectUserChat(senderUser);
+        }
+        toast.remove();
+      };
+
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transition = 'opacity 0.4s ease';
+        setTimeout(() => toast.remove(), 400);
+      }, 4500);
+    }
+
+    // --- Incoming Notification Handler ---
+    async function handleIncomingNotification(data) {
+      let senderUser = allUsers.find(u => u.id === data.sender_id);
+      const key = await getOrCreateSharedKey(data.sender_id);
+      let text = await decryptPayload(key, data.encrypted_content);
+
+      if (data.message_type === 'image') text = '📷 Sent an encrypted photo';
+      else if (data.message_type === 'audio') text = '🎙️ Sent an encrypted voice note';
+      else if (data.message_type === 'file') text = '📁 Sent an encrypted file';
+
+      const senderName = senderUser ? senderUser.display_name : 'Someone';
+
+      playNotificationSound();
+      showInAppToast(senderUser || { id: data.sender_id, display_name: senderName }, text);
+
+      if ('Notification' in window && Notification.permission === 'granted') {
+        try {
+          new Notification(`Message from ${senderName}`, { body: text });
+        } catch(e) {}
+      }
+    }
+
+    // --- Theme Switcher ---
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('chat_theme', theme);
+      const html = document.documentElement;
+      const body = document.getElementById('body-bg');
+      const sun = document.getElementById('theme-sun');
+      const moon = document.getElementById('theme-moon');
+
+      if (theme === 'light') {
+        html.classList.remove('dark');
+        html.classList.add('light');
+        body.className = 'h-full overflow-hidden flex flex-col justify-between doodle-bg-light text-slate-900 antialiased selection:bg-indigo-500 selection:text-white';
+        sun.classList.remove('hidden');
+        moon.classList.add('hidden');
+      } else {
+        html.classList.remove('light');
+        html.classList.add('dark');
+        body.className = 'h-full overflow-hidden flex flex-col justify-between doodle-bg-dark text-slate-100 antialiased selection:bg-indigo-500 selection:text-white';
+        moon.classList.remove('hidden');
+        sun.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+
+    applyTheme(currentTheme);
+
+    // --- Base64 Helpers ---
+    function bufferToBase64(buffer) {
+      const bytes = new Uint8Array(buffer);
+      let binary = '';
+      for (let i = 0; i < bytes.byteLength; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      return btoa(binary);
+    }
+
+    function base64ToBuffer(base64Str) {
+      let normalized = base64Str.replace(/-/g, '+').replace(/_/g, '/');
+      while (normalized.length % 4 !== 0) {
+        normalized += '=';
+      }
+      const binary = atob(normalized);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) {
+        bytes[i] = binary.charCodeAt(i);
+      }
+      return bytes.buffer;
+    }
+
+    // --- Authenticated Fetch Helper ---
+    async function apiFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      if (sessionToken) {
+        options.headers['Authorization'] = `Bearer ${sessionToken}`;
+      }
+      options.credentials = 'include';
+      return await fetch(url, options);
+    }
+
+    // --- WebCrypto Key Derivation ---
+    async function getOrCreateSharedKey(otherUserId) {
+      if (sharedKeys[otherUserId]) return sharedKeys[otherUserId];
+      if (!currentUser) return null;
+
+      try {
+        const pairId = [currentUser.id, otherUserId].sort().join(':');
+        const encoder = new TextEncoder();
+        const keyMaterial = await window.crypto.subtle.importKey(
+          'raw',
+          encoder.encode('E2EE_SHARED_SECRET_PAIR_' + pairId),
+          { name: 'PBKDF2' },
+          false,
+          ['deriveKey']
+        );
+
+        const derivedKey = await window.crypto.subtle.deriveKey(
+          {
+            name: 'PBKDF2',
+            salt: encoder.encode('SALT_' + pairId),
+            iterations: 100000,
+            hash: 'SHA-256'
+          },
+          keyMaterial,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt', 'decrypt']
+        );
+
+        sharedKeys[otherUserId] = derivedKey;
+        return derivedKey;
+      } catch(e) {
+        console.error('Key derivation error:', e);
+        return null;
+      }
+    }
+
+    async function encryptPayload(key, plaintext) {
+      const iv = window.crypto.getRandomValues(new Uint8Array(12));
+      const encoded = new TextEncoder().encode(plaintext);
+      const ciphertext = await window.crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoded);
+      
+      return JSON.stringify({
+        iv: bufferToBase64(iv),
+        data: bufferToBase64(ciphertext)
+      });
+    }
+
+    async function decryptPayload(key, encryptedContentStr) {
+      if (!encryptedContentStr) return '';
+      
+      if (!encryptedContentStr.startsWith('{') || !encryptedContentStr.includes('"iv"')) {
+        return encryptedContentStr;
+      }
+
+      try {
+        const parsed = JSON.parse(encryptedContentStr);
+        const iv = new Uint8Array(base64ToBuffer(parsed.iv));
+        const ciphertext = base64ToBuffer(parsed.data);
+        const decrypted = await window.crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, ciphertext);
+        return new TextDecoder().decode(decrypted);
+      } catch(e) {
+        console.error('Decryption exception:', e);
+        return encryptedContentStr;
+      }
+    }
+
+    // --- Authentication ---
+    async function checkAuth() {
+      try {
+        const res = await apiFetch('/api/auth/me');
+        if (res.ok) {
+          currentUser = await res.json();
+          onAuthenticated();
+        } else {
+          localStorage.removeItem('chat_session_token');
+          sessionToken = '';
+        }
+      } catch(e) {}
+    }
+
+    async function onAuthenticated() {
+      document.getElementById('auth-screen').classList.add('hidden');
+      document.getElementById('chat-screen').classList.remove('hidden');
+      document.getElementById('user-nav').classList.remove('hidden');
+      document.getElementById('nav-display-name').textContent = currentUser.display_name;
+      document.getElementById('nav-username').textContent = '@' + currentUser.username;
+      document.getElementById('nav-avatar').textContent = currentUser.display_name[0].toUpperCase();
+      
+      const moderatorLink = document.getElementById('nav-moderator-link');
+      if (moderatorLink) {
+        moderatorLink.classList.toggle('hidden', !currentUser.is_moderator);
+      }
+
+      if ('Notification' in window && Notification.permission === 'default') {
+        Notification.requestPermission();
+      }
+
+      connectWebSocket();
+      loadUserDirectory();
+      
+      // Auto Refresh Contacts Directory every 5s for real-time contact discovery
+      setInterval(loadUserDirectory, 5000);
+    }
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('input-username').value.trim();
+      const password = document.getElementById('input-password').value.trim();
+      const display_name = document.getElementById('input-displayname').value.trim();
+      
+      const res = await fetch('/api/auth/simple-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, display_name })
+      });
+      
+      if (res.ok) {
+        const data = await res.json();
+        currentUser = data.user;
+        sessionToken = data.token;
+        localStorage.setItem('chat_session_token', data.token);
+        onAuthenticated();
+      } else {
+        const err = await res.json();
+        document.getElementById('auth-error').textContent = err.detail || 'Authentication failed. Check your password.';
+        document.getElementById('auth-error').classList.remove('hidden');
+      }
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', async () => {
+      await apiFetch('/api/auth/logout', { method: 'POST' });
+      localStorage.removeItem('chat_session_token');
+      location.reload();
+    });
+
+    // --- WebSocket Connection ---
+    function connectWebSocket() {
+      if (!sessionToken) return;
+      const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+
+      ws = new WebSocket(`${protocol}//${location.host}/ws?token=${encodeURIComponent(sessionToken)}`);
+      
+      ws.onmessage = async (evt) => {
+        const data = JSON.parse(evt.data);
+        if (data.type === 'encrypted_message') {
+          if (activeRoomId && activeRoomId === data.room_id) {
+            await renderMessage(data);
+            sendReadAck(data.room_id);
+          }
+          loadUserDirectory();
+
+          if (currentUser && data.sender_id !== currentUser.id) {
+            await handleIncomingNotification(data);
+          }
+        } else if (data.type === 'reaction_update') {
+          updateMessageReactionsUI(data.message_id, data.reactions);
+        } else if (data.type === 'read_receipt') {
+          if (activeRoomId && activeRoomId === data.room_id) {
+            markAllMessagesAsReadUI();
+          }
+        } else if (data.type === 'room_created') {
+          loadUserDirectory();
+        } else if (data.type === 'presence_update') {
+          updateUserPresence(data.user_id, data.is_online, data.last_seen_at);
+        } else if (data.type === 'typing') {
+          if (activeUser && activeUser.id === data.sender_id) {
+            document.getElementById('typing-indicator').classList.toggle('hidden', !data.is_typing);
+          }
+        } else if (data.type === 'system_announcement') {
+          showSystemAnnouncementBanner(data);
+        } else if (data.type === 'force_logout') {
+          alert('SESSION TERMINATED BY MODERATOR\n\n' + (data.reason || 'Your session has been terminated by a moderator.'));
+          localStorage.removeItem('chat_session_token');
+          location.reload();
+        } else if (data.type === 'user_deleted') {
+          if (activeUser && activeUser.id === data.user_id) {
+            activeUser = null;
+            activeRoomId = null;
+            document.getElementById('chat-welcome').classList.remove('hidden');
+            document.getElementById('chat-active-window').classList.add('hidden');
+          }
+          loadUserDirectory();
+        }
+      };
+
+      ws.onclose = () => setTimeout(connectWebSocket, 3000);
+    }
+
+    function showSystemAnnouncementBanner(data) {
+      const existing = document.getElementById('system-announcement-banner');
+      if (existing) existing.remove();
+
+      const sevStyles = {
+        info: 'bg-indigo-600 text-white border-indigo-400 shadow-indigo-600/40',
+        warning: 'bg-amber-600 text-white border-amber-400 shadow-amber-600/40',
+        alert: 'bg-rose-600 text-white border-rose-400 shadow-rose-600/40',
+        success: 'bg-emerald-600 text-white border-emerald-400 shadow-emerald-600/40'
+      };
+
+      const banner = document.createElement('div');
+      banner.id = 'system-announcement-banner';
+      banner.className = `fixed top-3 left-1/2 -translate-x-1/2 z-50 max-w-xl w-[92%] px-4 py-3 rounded-2xl shadow-2xl border flex items-center justify-between gap-3 text-xs font-semibold transition-all duration-300 transform -translate-y-8 opacity-0 ${sevStyles[data.severity] || sevStyles.info}`;
+      banner.innerHTML = `
+        <div class="flex items-center gap-2.5">
+          <span class="text-lg">📢</span>
+          <div>
+            <span class="uppercase tracking-wider font-bold text-[10px] opacity-90 block">${data.title || 'System Announcement'}</span>
+            <span class="text-xs font-medium">${data.message}</span>
+          </div>
+        </div>
+        <button onclick="document.getElementById('system-announcement-banner').remove()" class="p-1 rounded-lg hover:bg-white/20 text-white transition text-xs font-bold">✕</button>
+      `;
+      document.body.appendChild(banner);
+      setTimeout(() => banner.classList.remove('-translate-y-8', 'opacity-0'), 20);
+
+      // Auto dismiss after 12s
+      setTimeout(() => {
+        if (banner && banner.parentNode) {
+          banner.classList.add('opacity-0', '-translate-y-8');
+          setTimeout(() => banner.remove(), 400);
+        }
+      }, 12000);
+    }
+
+    function sendReadAck(roomId) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'read_ack', room_id: roomId }));
+      }
+    }
+
+    function formatLastSeenDateAndTime(isoStr) {
+      if (!isoStr) return 'Offline';
+      const d = new Date(isoStr);
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+
+      if (isToday) {
+        return `Last seen today at ${timeStr}`;
+      }
+
+      const yesterday = new Date(now);
+      yesterday.setDate(now.getDate() - 1);
+      if (d.toDateString() === yesterday.toDateString()) {
+        return `Last seen yesterday at ${timeStr}`;
+      }
+
+      const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: d.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+      return `Last seen on ${dateStr} at ${timeStr}`;
+    }
+
+    function formatLastSeenShort(isoStr) {
+      if (!isoStr) return 'Offline';
+      const d = new Date(isoStr);
+      const now = new Date();
+      const isToday = d.toDateString() === now.toDateString();
+      const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', hour12: true });
+      if (isToday) {
+        return `Last seen today, ${timeStr}`;
+      }
+      const dateStr = d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+      return `Last seen ${dateStr}, ${timeStr}`;
+    }
+
+    function updateUserPresence(userId, isOnline, lastSeenAt) {
+      if (activeUser && activeUser.id === userId) {
+        activeUser.is_online = isOnline;
+        if (lastSeenAt) activeUser.last_seen_at = lastSeenAt;
+        document.getElementById('active-status').textContent = isOnline ? 'Online' : formatLastSeenDateAndTime(activeUser.last_seen_at);
+        const dot = document.getElementById('active-dot');
+        dot.className = `w-3 h-3 rounded-full absolute right-0 bottom-0 ${isOnline ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-slate-400 dark:bg-slate-600'} ring-2 ring-white dark:ring-slate-950`;
+      }
+      const userInList = allUsers.find(u => u.id === userId);
+      if (userInList) {
+        userInList.is_online = isOnline;
+        if (lastSeenAt) userInList.last_seen_at = lastSeenAt;
+      }
+      loadUserDirectory();
+    }
+
+    // --- Sidebar Filters ---
+    document.getElementById('filter-all').addEventListener('click', () => {
+      activeFilter = 'all';
+      document.getElementById('filter-all').className = 'flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 transition shadow-sm';
+      document.getElementById('filter-online').className = 'flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition';
+      renderSidebar();
+    });
+
+    document.getElementById('filter-online').addEventListener('click', () => {
+      activeFilter = 'online';
+      document.getElementById('filter-online').className = 'flex-1 py-1.5 px-2 rounded-lg text-xs font-semibold bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 transition shadow-sm';
+      document.getElementById('filter-all').className = 'flex-1 py-1.5 px-2 rounded-lg text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 transition';
+      renderSidebar();
+    });
+
+    document.getElementById('user-search').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      renderSidebar(q);
+    });
+
+    async function loadUserDirectory() {
+      const res = await apiFetch('/api/users');
+      if (res.ok) {
+        allUsers = await res.json();
+        renderSidebar(document.getElementById('user-search').value.trim().toLowerCase());
+      }
+    }
+
+    function renderSidebar(filterQuery = '') {
+      const container = document.getElementById('sidebar-list');
+      container.innerHTML = '';
+
+      let filteredUsers = allUsers.filter(u => 
+        !filterQuery || u.display_name.toLowerCase().includes(filterQuery) || u.username.toLowerCase().includes(filterQuery)
+      );
+
+      if (activeFilter === 'online') {
+        filteredUsers = filteredUsers.filter(u => u.is_online);
+      }
+
+      if (filteredUsers.length === 0) {
+        if (allUsers.length === 0) {
+          container.innerHTML = `
+            <div class="p-6 text-center space-y-3">
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center mx-auto">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 43v-18m-9 9h18"></path></svg>
+              </div>
+              <p class="text-xs text-slate-400 leading-relaxed font-medium">No other contacts registered yet.</p>
+              <div class="p-3 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-[11px] text-indigo-300 text-left space-y-1">
+                <div class="font-bold">💡 How to chat:</div>
+                <p>Open an Incognito window or second browser tab at <strong>http://localhost:8000</strong> and sign in as another user (e.g. <code>@bob</code>) to start chatting!</p>
+              </div>
+            </div>
+          `;
+        } else {
+          container.innerHTML = `<div class="p-6 text-xs text-slate-500 text-center">No contact matching "${escapeHtml(filterQuery)}"</div>`;
+        }
+        return;
+      }
+
+      filteredUsers.forEach(u => {
+        const isActive = activeUser && activeUser.id === u.id;
+        const div = document.createElement('div');
+        div.className = `p-3 rounded-2xl cursor-pointer flex items-center gap-3 transition-all ${isActive ? 'bg-indigo-500/15 dark:bg-indigo-600/20 border border-indigo-500/30 shadow-md shadow-indigo-600/10' : 'hover:bg-slate-100/80 dark:hover:bg-slate-900/60 border border-transparent'}`;
+        div.innerHTML = `
+          <div class="relative">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500/30 to-purple-500/30 text-indigo-600 dark:text-indigo-300 flex items-center justify-center font-bold text-sm border border-indigo-500/30">
+              ${u.display_name[0].toUpperCase()}
+            </div>
+            <span class="w-3 h-3 rounded-full absolute right-0 bottom-0 ${u.is_online ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-slate-400 dark:bg-slate-600'} ring-2 ring-white dark:ring-slate-950"></span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-baseline">
+              <span class="font-semibold text-sm truncate text-slate-900 dark:text-slate-100">${u.display_name}</span>
+            </div>
+            <div class="text-xs text-slate-500 dark:text-slate-400 truncate flex items-center gap-1.5 mt-0.5">
+              <span>@${u.username}</span>
+              <span class="text-slate-600 dark:text-slate-500">•</span>
+              <span>${u.is_online ? '<span class="text-emerald-500 font-medium">Online</span>' : (u.last_seen_at ? `<span class="text-slate-400 text-[11px]">${formatLastSeenShort(u.last_seen_at)}</span>` : '<span class="text-slate-500 text-[11px]">Offline</span>')}</span>
+            </div>
+          </div>
+        `;
+        div.onclick = () => selectUserChat(u);
+        container.appendChild(div);
+      });
+    }
+
+    async function selectUserChat(user) {
+      activeUser = user;
+      renderSidebar(document.getElementById('user-search').value.trim().toLowerCase());
+
+      document.getElementById('no-room').classList.add('hidden');
+      document.getElementById('active-chat').classList.remove('hidden');
+      document.getElementById('active-name').textContent = user.display_name;
+      document.getElementById('active-avatar').textContent = user.display_name[0].toUpperCase();
+      document.getElementById('active-status').textContent = user.is_online ? 'Online' : formatLastSeenDateAndTime(user.last_seen_at);
+      
+      const dot = document.getElementById('active-dot');
+      dot.className = `w-3 h-3 rounded-full absolute right-0 bottom-0 ${user.is_online ? 'bg-emerald-500 dark:bg-emerald-400 animate-pulse' : 'bg-slate-400 dark:bg-slate-600'} ring-2 ring-white dark:ring-slate-950`;
+
+      let roomId = user.room_id;
+      if (!roomId) {
+        const res = await apiFetch('/api/rooms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ participant_id: user.id })
+        });
+        if (res.ok) {
+          const room = await res.json();
+          roomId = room.id;
+          user.room_id = roomId;
+        }
+      }
+      activeRoomId = roomId;
+
+      await getOrCreateSharedKey(user.id);
+      await loadMessages();
+      sendReadAck(activeRoomId);
+    }
+
+    async function loadMessages() {
+      if (!activeRoomId) return;
+      const container = document.getElementById('message-list');
+      container.innerHTML = `
+        <div class="p-4 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 text-center text-xs text-indigo-700 dark:text-indigo-300 space-y-1 mb-4">
+          <div class="font-bold flex items-center justify-center gap-1.5 text-indigo-600 dark:text-indigo-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+            </svg>
+            <span>End-to-End Encrypted Session</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-400 text-[11px]">Messages & media in this chat are secured with WebCrypto 256-bit AES-GCM encryption.</p>
+        </div>
+      `;
+      renderedMsgIds.clear();
+
+      const res = await apiFetch(`/api/rooms/${activeRoomId}/messages`);
+      if (res.ok) {
+        const msgs = await res.json();
+        for (let m of msgs) {
+          await renderMessage(m);
+        }
+      }
+    }
+
+    async function renderMessage(msg) {
+      if (renderedMsgIds.has(msg.id)) return;
+      renderedMsgIds.add(msg.id);
+
+      const container = document.getElementById('message-list');
+      const isMine = msg.sender_id === currentUser.id;
+      const otherId = isMine ? msg.recipient_id : msg.sender_id;
+      
+      let key = sharedKeys[otherId];
+      if (!key) {
+        key = await getOrCreateSharedKey(otherId);
+      }
+
+      let rawContent = await decryptPayload(key, msg.encrypted_content);
+
+      let innerHtmlContent = '';
+      if (msg.message_type === 'image' || rawContent.startsWith('data:image/')) {
+        innerHtmlContent = `
+          <div class="space-y-1">
+            <img src="${rawContent}" class="max-w-xs max-h-60 rounded-xl cursor-pointer hover:opacity-90 transition object-cover" onclick="openLightbox('${rawContent}')">
+            <p class="text-[11px] opacity-75">Encrypted Image</p>
+          </div>
+        `;
+      } else if (msg.message_type === 'audio' || rawContent.startsWith('data:audio/')) {
+        innerHtmlContent = `
+          <div class="space-y-1">
+            <audio controls src="${rawContent}" class="max-w-xs rounded-lg"></audio>
+            <p class="text-[11px] opacity-75">🎙️ Voice Note</p>
+          </div>
+        `;
+      } else if (msg.message_type === 'file' || rawContent.startsWith('data:application/') || rawContent.startsWith('data:file/')) {
+        innerHtmlContent = `
+          <div class="flex items-center gap-3 p-2 rounded-xl bg-black/10 dark:bg-white/10">
+            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            <div class="flex-1 min-w-0 text-left">
+              <div class="text-xs font-semibold truncate">Encrypted File Attachment</div>
+              <a href="${rawContent}" download="encrypted_file" class="text-[11px] underline text-indigo-300 hover:text-indigo-100">Download File</a>
+            </div>
+          </div>
+        `;
+      } else {
+        innerHtmlContent = `<p class="leading-relaxed msg-text-body">${escapeHtml(rawContent)}</p>`;
+      }
+
+      let checkmarkColor = msg.is_read ? 'text-sky-300 font-bold' : 'text-indigo-200';
+      const checkmarksSvg = `
+        <span class="msg-checkmarks ${checkmarkColor}">
+          <svg class="w-3.5 h-3.5 inline-block ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"></path>
+          </svg>
+        </span>
+      `;
+
+      let reactionsHtml = renderReactionsPills(msg.id, msg.reactions || {});
+
+      const div = document.createElement('div');
+      div.id = `msg-element-${msg.id}`;
+      div.className = `flex ${isMine ? 'justify-end' : 'justify-start'} msg-enter relative group`;
+      
+      div.innerHTML = `
+        <div class="max-w-md px-4 py-2.5 rounded-2xl text-sm relative ${isMine ? 'bg-gradient-to-r from-indigo-600 to-violet-600 text-white rounded-br-xs shadow-lg shadow-indigo-600/15' : 'glass-card rounded-bl-xs shadow-sm'}">
+          
+          <div class="hidden group-hover:flex absolute -top-8 ${isMine ? 'right-0' : 'left-0'} px-2 py-1 rounded-full bg-slate-900/90 border border-slate-700 shadow-xl items-center gap-1.5 z-20">
+            <button onclick="sendReaction('${msg.id}', '❤️')" class="hover:scale-125 transition">❤️</button>
+            <button onclick="sendReaction('${msg.id}', '👍')" class="hover:scale-125 transition">👍</button>
+            <button onclick="sendReaction('${msg.id}', '😂')" class="hover:scale-125 transition">😂</button>
+            <button onclick="sendReaction('${msg.id}', '🔥')" class="hover:scale-125 transition">🔥</button>
+            <button onclick="sendReaction('${msg.id}', '😮')" class="hover:scale-125 transition">😮</button>
+          </div>
+
+          ${innerHtmlContent}
+
+          <div class="text-[10px] opacity-70 text-right mt-1 font-medium flex items-center justify-end gap-1">
+            <span>${new Date(msg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            ${isMine ? checkmarksSvg : ''}
+          </div>
+
+          <div id="reactions-container-${msg.id}" class="mt-1">${reactionsHtml}</div>
+        </div>
+      `;
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    function renderReactionsPills(msgId, reactions) {
+      let html = '<div class="flex flex-wrap gap-1 mt-1">';
+      for (const [emoji, users] of Object.entries(reactions)) {
+        if (users && users.length > 0) {
+          html += `<span onclick="sendReaction('${msgId}', '${emoji}')" class="px-1.5 py-0.5 rounded-full text-[10px] bg-black/20 hover:bg-black/40 cursor-pointer border border-white/10 font-bold">${emoji} ${users.length}</span>`;
+        }
+      }
+      html += '</div>';
+      return html;
+    }
+
+    function sendReaction(msgId, emoji) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: 'reaction', message_id: msgId, emoji: emoji }));
+      }
+    }
+
+    function updateMessageReactionsUI(msgId, reactions) {
+      const container = document.getElementById(`reactions-container-${msgId}`);
+      if (container) {
+        container.innerHTML = renderReactionsPills(msgId, reactions);
+      }
+    }
+
+    function markAllMessagesAsReadUI() {
+      const checkmarks = document.querySelectorAll('.msg-checkmarks');
+      checkmarks.forEach(c => {
+        c.className = 'msg-checkmarks text-sky-300 font-bold';
+      });
+    }
+
+    function openLightbox(src) {
+      const modal = document.getElementById('lightbox-modal');
+      const img = document.getElementById('lightbox-img');
+      img.src = src;
+      modal.classList.remove('hidden');
+    }
+
+    document.getElementById('lightbox-close').addEventListener('click', () => {
+      document.getElementById('lightbox-modal').classList.add('hidden');
+    });
+
+    // --- In-Chat Search ---
+    document.getElementById('btn-toggle-inchat-search').addEventListener('click', () => {
+      const bar = document.getElementById('inchat-search-bar');
+      bar.classList.toggle('hidden');
+      if (!bar.classList.contains('hidden')) {
+        document.getElementById('inchat-search-input').focus();
+      }
+    });
+
+    document.getElementById('inchat-search-close').addEventListener('click', () => {
+      document.getElementById('inchat-search-bar').classList.add('hidden');
+    });
+
+    document.getElementById('inchat-search-input').addEventListener('input', (e) => {
+      const q = e.target.value.trim().toLowerCase();
+      const messages = document.querySelectorAll('.msg-text-body');
+      let count = 0;
+
+      messages.forEach(m => {
+        const text = m.textContent.toLowerCase();
+        if (q && text.includes(q)) {
+          m.parentElement.classList.add('ring-2', 'ring-amber-400');
+          count++;
+        } else {
+          m.parentElement.classList.remove('ring-2', 'ring-amber-400');
+        }
+      });
+      document.getElementById('inchat-search-count').textContent = `${count} matches`;
+    });
+
+    // --- File Attachment Upload Handler ---
+    document.getElementById('btn-attach').addEventListener('click', () => {
+      document.getElementById('file-input').click();
+    });
+
+    document.getElementById('file-input').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file || !activeUser || !activeRoomId) return;
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const base64Data = reader.result;
+        const recipientId = activeUser.id;
+        let key = sharedKeys[recipientId];
+        if (!key) key = await getOrCreateSharedKey(recipientId);
+
+        const mType = file.type.startsWith('image/') ? 'image' : 'file';
+        const ciphertext = await encryptPayload(key, base64Data);
+
+        const res = await apiFetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            room_id: activeRoomId,
+            recipient_id: recipientId,
+            encrypted_content: ciphertext,
+            message_type: mType
+          })
+        });
+
+        if (res.ok) {
+          const msg = await res.json();
+          await renderMessage(msg);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // --- Audio Voice Recording Handler ---
+    document.getElementById('btn-record-mic').addEventListener('click', async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream);
+        audioChunks = [];
+
+        mediaRecorder.ondataavailable = (evt) => {
+          if (evt.data.size > 0) audioChunks.push(evt.data);
+        };
+
+        mediaRecorder.start();
+        recordingSeconds = 0;
+        document.getElementById('recording-bar').classList.remove('hidden');
+        recordingTimerInterval = setInterval(() => {
+          recordingSeconds++;
+          const mins = String(Math.floor(recordingSeconds / 60)).padStart(2, '0');
+          const secs = String(recordingSeconds % 60).padStart(2, '0');
+          document.getElementById('recording-timer').textContent = `${mins}:${secs}`;
+        }, 1000);
+      } catch(e) {
+        alert('Microphone access denied or unavailable.');
+      }
+    });
+
+    document.getElementById('btn-cancel-recording').addEventListener('click', () => {
+      if (mediaRecorder) mediaRecorder.stop();
+      clearInterval(recordingTimerInterval);
+      document.getElementById('recording-bar').classList.add('hidden');
+    });
+
+    document.getElementById('btn-stop-send-recording').addEventListener('click', () => {
+      if (!mediaRecorder) return;
+      clearInterval(recordingTimerInterval);
+      document.getElementById('recording-bar').classList.add('hidden');
+
+      mediaRecorder.onstop = async () => {
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+          const base64Audio = reader.result;
+          const recipientId = activeUser.id;
+          let key = sharedKeys[recipientId];
+          if (!key) key = await getOrCreateSharedKey(recipientId);
+
+          const ciphertext = await encryptPayload(key, base64Audio);
+
+          const res = await apiFetch('/api/messages', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              room_id: activeRoomId,
+              recipient_id: recipientId,
+              encrypted_content: ciphertext,
+              message_type: 'audio'
+            })
+          });
+
+          if (res.ok) {
+            const msg = await res.json();
+            await renderMessage(msg);
+          }
+        };
+        reader.readAsDataURL(audioBlob);
+      };
+      mediaRecorder.stop();
+    });
+
+    // --- Message Send Handler ---
+    document.getElementById('message-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const input = document.getElementById('message-input');
+      const plaintext = input.value.trim();
+      if (!plaintext || !activeUser || !activeRoomId) return;
+
+      const recipientId = activeUser.id;
+      let key = sharedKeys[recipientId];
+      if (!key) {
+        key = await getOrCreateSharedKey(recipientId);
+      }
+
+      try {
+        const ciphertext = await encryptPayload(key, plaintext);
+        input.value = '';
+
+        const res = await apiFetch('/api/messages', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            room_id: activeRoomId,
+            recipient_id: recipientId,
+            encrypted_content: ciphertext,
+            message_type: 'text'
+          })
+        });
+
+        if (res.ok) {
+          const msg = await res.json();
+          await renderMessage(msg);
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          console.error('Failed to send message:', errData);
+        }
+      } catch(err) {
+        console.error('Send message exception:', err);
+      }
+    });
+
+    // Start App
+    checkAuth();
+  </script>
+</body>
+</html>

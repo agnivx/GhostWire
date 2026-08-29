@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GhostWire | Moderator Console</title>
+  <link rel="icon" type="image/png" href="/static/favicon.png">
+  <link rel="shortcut icon" href="/static/favicon.ico">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca',
+              900: '#312e81'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Outfit', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
+    h1, h2, h3, h4, .font-display { font-family: 'Outfit', sans-serif; }
+    
+    /* Transparent Doodle Background Patterns */
+    .doodle-bg-dark {
+      background-color: #030712;
+      background-image: radial-gradient(#312e81 1.2px, transparent 1.2px), radial-gradient(#4f46e5 1.2px, #030712 1.2px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+    .doodle-bg-light {
+      background-color: #f8fafc;
+      background-image: radial-gradient(#cbd5e1 1.2px, transparent 1.2px), radial-gradient(#94a3b8 1.2px, #f8fafc 1.2px);
+      background-size: 40px 40px;
+      background-position: 0 0, 20px 20px;
+    }
+
+    /* Glassmorphic Elements */
+    .dark .glass-panel {
+      background: rgba(15, 23, 42, 0.85);
+      backdrop-filter: blur(20px);
+      border-color: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .dark .glass-card {
+      background: rgba(30, 41, 59, 0.65);
+      backdrop-filter: blur(14px);
+      border-color: rgba(255, 255, 255, 0.07);
+    }
+    .dark .input-field {
+      background: rgba(15, 23, 42, 0.9);
+      border-color: rgba(51, 65, 85, 0.8);
+      color: #ffffff;
+    }
+
+    .light .glass-panel {
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      border-color: rgba(226, 232, 240, 0.9);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+    }
+    .light .glass-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(12px);
+      border-color: rgba(226, 232, 240, 0.95);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    }
+    .light .input-field {
+      background: #ffffff;
+      border-color: #cbd5e1;
+      color: #0f172a;
+    }
+
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(148, 163, 184, 0.5); }
+  </style>
+</head>
+<body id="body-bg" class="h-full overflow-x-hidden doodle-bg-dark text-slate-100 antialiased selection:bg-indigo-500 selection:text-white">
+
+  <!-- ================= AUTH MODAL (If Not Logged In as Moderator) ================= -->
+  <div id="mod-auth-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md hidden">
+    <div class="glass-panel w-full max-w-md p-8 rounded-3xl border text-center shadow-2xl relative">
+      <div class="flex justify-center mb-4">
+        <img src="/static/logo.png" alt="GhostWire" class="h-14 object-contain drop-shadow-[0_0_24px_rgba(56,189,248,0.45)]">
+      </div>
+      <h2 class="text-2xl font-bold font-display tracking-tight text-slate-900 dark:text-white mb-2">Moderator Authentication</h2>
+      <p class="text-sm text-slate-500 dark:text-slate-400 mb-6">Enter Master Key</p>
+
+      <div id="auth-error-msg" class="hidden mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-500 dark:text-rose-400 text-xs font-medium"></div>
+
+      <!-- Single Key Form -->
+      <form id="form-mod-key" class="space-y-4">
+        <div>
+          <label class="block text-left text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Moderator Access Key</label>
+          <input id="input-mod-key" type="password" placeholder="••••••••••••••••" required autocomplete="current-password" class="input-field w-full px-4 py-3 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition tracking-widest">
+        </div>
+        <button type="submit" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl text-sm transition shadow-lg shadow-indigo-600/30">
+          Unlock Moderator Console
+        </button>
+      </form>
+
+      <div class="mt-6 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <a href="/" class="text-xs text-slate-500 hover:text-indigo-500 dark:hover:text-indigo-400 transition font-medium flex items-center justify-center gap-1">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+          Return to Chat Application
+        </a>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= MAIN MODERATOR CONSOLE APP ================= -->
+  <div id="moderator-app" class="min-h-screen flex flex-col">
+
+    <!-- Top Navigation Header -->
+    <header class="sticky top-0 z-40 glass-panel border-b px-6 py-3.5 transition">
+      <div class="max-w-7xl mx-auto flex items-center justify-between">
+        
+        <!-- Brand & Title -->
+        <div class="flex items-center space-x-3">
+          <img src="/static/icon.png" alt="GhostWire" class="w-10 h-10 object-contain drop-shadow-[0_0_15px_rgba(56,189,248,0.45)]">
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-lg font-bold font-display tracking-tight text-slate-900 dark:text-white">GhostWire <span class="text-xs font-normal text-slate-400">| Moderator Console</span></h1>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/10 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 uppercase tracking-wide">Live Operations</span>
+            </div>
+            <p class="text-xs text-slate-500 dark:text-slate-400">GhostWire System & User Management</p>
+          </div>
+        </div>
+
+        <!-- Center Controls: Live Status & Auto-refresh -->
+        <div class="hidden md:flex items-center space-x-4">
+          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+            <span>Real-Time Engine Active</span>
+          </div>
+
+          <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+            <span>Auto-Refresh:</span>
+            <select id="select-refresh-rate" class="input-field text-xs py-1 px-2.5 rounded-lg border focus:outline-none">
+              <option value="3000">3s (Live)</option>
+              <option value="5000" selected>5s</option>
+              <option value="10000">10s</option>
+              <option value="0">Off</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Right Side Nav Actions -->
+        <div class="flex items-center space-x-2.5">
+          <!-- Refresh button -->
+          <button id="btn-manual-refresh" title="Refresh Data" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <svg id="refresh-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </button>
+
+          <!-- Theme toggle -->
+          <button id="theme-toggle" class="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            <svg id="theme-sun" class="w-4 h-4 hidden text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 9H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="theme-moon" class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          </button>
+
+          <!-- Return to Chat -->
+          <a href="/" class="hidden sm:flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 text-xs font-semibold transition border border-slate-200 dark:border-slate-700">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            Chat App
+          </a>
+
+          <!-- Moderator Avatar & Logout -->
+          <div class="flex items-center pl-2 border-l border-slate-200 dark:border-slate-800 gap-2">
+            <div id="mod-badge-avatar" class="w-8 h-8 rounded-lg bg-indigo-600 text-white font-bold text-xs flex items-center justify-center">M</div>
+            <button id="btn-mod-logout" title="Sign Out" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-500/10 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+      <!-- ================= KPI STATS CARDS ================= -->
+      <section class="grid grid-cols-2 md:grid-cols-5 gap-3 sm:gap-4">
+        
+        <!-- Total Registered Users -->
+        <div class="glass-card p-4 rounded-2xl border transition hover:border-indigo-500/40">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <span class="text-xs font-semibold">Total Users</span>
+            <div class="w-7 h-7 rounded-lg bg-indigo-500/10 text-indigo-500 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            </div>
+          </div>
+          <div id="stat-total-users" class="text-2xl font-bold font-display text-slate-900 dark:text-white">0</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+            <span id="stat-moderator-count" class="font-semibold text-indigo-500">0</span> Moderators
+          </div>
+        </div>
+
+        <!-- Online Now -->
+        <div class="glass-card p-4 rounded-2xl border transition hover:border-emerald-500/40 relative overflow-hidden">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <span class="text-xs font-semibold">Online Users</span>
+            <div class="w-7 h-7 rounded-lg bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+          </div>
+          <div id="stat-online-users" class="text-2xl font-bold font-display text-emerald-600 dark:text-emerald-400">0</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 flex items-center gap-1">
+            <span id="stat-offline-users" class="font-semibold">0</span> offline users
+          </div>
+        </div>
+
+        <!-- Active Rooms / Conversations -->
+        <div class="glass-card p-4 rounded-2xl border transition hover:border-purple-500/40">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <span class="text-xs font-semibold">Chat Rooms</span>
+            <div class="w-7 h-7 rounded-lg bg-purple-500/10 text-purple-500 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path></svg>
+            </div>
+          </div>
+          <div id="stat-total-rooms" class="text-2xl font-bold font-display text-slate-900 dark:text-white">0</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">E2EE P2P Channels</div>
+        </div>
+
+        <!-- Total Stored Messages -->
+        <div class="glass-card p-4 rounded-2xl border transition hover:border-cyan-500/40">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <span class="text-xs font-semibold">Messages Relayed</span>
+            <div class="w-7 h-7 rounded-lg bg-cyan-500/10 text-cyan-500 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z"></path></svg>
+            </div>
+          </div>
+          <div id="stat-total-msgs" class="text-2xl font-bold font-display text-slate-900 dark:text-white">0</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Encrypted Payloads</div>
+        </div>
+
+        <!-- Suspended / Banned Users -->
+        <div class="glass-card p-4 rounded-2xl border transition hover:border-rose-500/40 col-span-2 md:col-span-1">
+          <div class="flex items-center justify-between text-slate-500 dark:text-slate-400 mb-2">
+            <span class="text-xs font-semibold">Banned Users</span>
+            <div class="w-7 h-7 rounded-lg bg-rose-500/10 text-rose-500 flex items-center justify-center">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+            </div>
+          </div>
+          <div id="stat-banned-users" class="text-2xl font-bold font-display text-rose-500">0</div>
+          <div class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">Restricted Access</div>
+        </div>
+      </section>
+
+      <!-- ================= MODERATOR ACTION BAR ================= -->
+      <section class="glass-card p-4 rounded-2xl border flex flex-wrap items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <button id="btn-open-broadcast" class="flex items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition shadow-md shadow-indigo-600/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+            Broadcast Announcement
+          </button>
+          
+          <button id="btn-export-json" class="flex items-center gap-1.5 px-3 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 text-xs font-semibold rounded-xl transition border border-slate-200 dark:border-slate-700">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+            Export Report
+          </button>
+
+          <button id="btn-purge-all-messages" class="flex items-center gap-1.5 px-3 py-2 bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 text-xs font-semibold rounded-xl transition border border-rose-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+            Purge All Messages
+          </button>
+        </div>
+
+        <div class="text-xs text-slate-500 dark:text-slate-400">
+          Uptime: <span id="stat-uptime" class="font-semibold text-slate-700 dark:text-slate-200">0m</span> • Sockets: <span id="stat-ws-count" class="font-semibold text-slate-700 dark:text-slate-200">0</span>
+        </div>
+      </section>
+
+      <!-- ================= NAVIGATION TABS ================= -->
+      <div class="flex items-center border-b border-slate-200 dark:border-slate-800 gap-6 text-sm font-semibold">
+        <button id="tab-users-btn" class="pb-3 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          Users Management (<span id="tab-badge-users">0</span>)
+        </button>
+        <button id="tab-rooms-btn" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+          Active Rooms (<span id="tab-badge-rooms">0</span>)
+        </button>
+        <button id="tab-logs-btn" class="pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+          Audit Logs
+        </button>
+      </div>
+
+      <!-- ================= TAB 1: USERS MANAGEMENT ================= -->
+      <section id="section-tab-users" class="space-y-4">
+        
+        <!-- Search & Filter Controls -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div class="relative flex-1 max-w-md">
+            <svg class="w-4 h-4 absolute left-3.5 top-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <input id="input-user-search" type="text" placeholder="Search by username, display name, or UUID..." class="input-field w-full pl-10 pr-4 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5 text-xs font-semibold">
+            <button data-filter="all" class="btn-filter py-1.5 px-3 rounded-lg bg-indigo-600 text-white shadow-sm transition">All Users</button>
+            <button data-filter="online" class="btn-filter py-1.5 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition">🟢 Online</button>
+            <button data-filter="offline" class="btn-filter py-1.5 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition">⚪ Offline</button>
+            <button data-filter="banned" class="btn-filter py-1.5 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition">🚫 Banned</button>
+          </div>
+        </div>
+
+        <!-- Users Table Container -->
+        <div class="glass-card rounded-2xl border overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100/75 dark:bg-slate-900/75 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th class="py-3 px-4">User</th>
+                  <th class="py-3 px-4">Status</th>
+                  <th class="py-3 px-4">Activity & Last Seen</th>
+                  <th class="py-3 px-4">Registered Date & Time</th>
+                  <th class="py-3 px-4 text-right">Moderation Actions</th>
+                </tr>
+              </thead>
+              <tbody id="users-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/80">
+                <tr>
+                  <td colspan="5" class="py-8 text-center text-slate-500">Loading user database...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 2: ROOMS & CONVERSATIONS ================= -->
+      <section id="section-tab-rooms" class="space-y-4 hidden">
+        <div class="glass-card rounded-2xl border overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100/75 dark:bg-slate-900/75 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th class="py-3 px-4">Room ID</th>
+                  <th class="py-3 px-4">Participant 1</th>
+                  <th class="py-3 px-4">Participant 2</th>
+                  <th class="py-3 px-4">Messages</th>
+                  <th class="py-3 px-4">Created Date & Time</th>
+                  <th class="py-3 px-4 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="rooms-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/80">
+                <tr>
+                  <td colspan="6" class="py-8 text-center text-slate-500">Loading conversations...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= TAB 3: AUDIT LOGS ================= -->
+      <section id="section-tab-logs" class="space-y-4 hidden">
+        <div class="glass-card rounded-2xl border overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100/75 dark:bg-slate-900/75 text-slate-500 dark:text-slate-400 uppercase tracking-wider font-semibold border-b border-slate-200 dark:border-slate-800">
+                <tr>
+                  <th class="py-3 px-4">Timestamp</th>
+                  <th class="py-3 px-4">Moderator</th>
+                  <th class="py-3 px-4">Action</th>
+                  <th class="py-3 px-4">Target User</th>
+                  <th class="py-3 px-4">Details</th>
+                </tr>
+              </thead>
+              <tbody id="logs-table-body" class="divide-y divide-slate-200 dark:divide-slate-800/80">
+                <tr>
+                  <td colspan="5" class="py-8 text-center text-slate-500">Loading audit history...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+
+  <!-- ================= BROADCAST MODAL ================= -->
+  <div id="modal-broadcast" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="glass-panel w-full max-w-lg p-6 rounded-3xl border shadow-2xl relative">
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+          </div>
+          <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white">Broadcast System Announcement</h3>
+        </div>
+        <button id="btn-close-broadcast" class="p-1 rounded-lg text-slate-400 hover:text-slate-200">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+      </div>
+
+      <form id="form-broadcast" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Announcement Title</label>
+          <input id="broadcast-title" type="text" value="System Maintenance & Updates" class="input-field w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Severity Level</label>
+          <div class="grid grid-cols-4 gap-2 text-xs font-semibold">
+            <label class="cursor-pointer border border-slate-700 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 hover:border-indigo-500 transition">
+              <input type="radio" name="broadcast-severity" value="info" checked class="text-indigo-600">
+              <span class="text-indigo-400">Info</span>
+            </label>
+            <label class="cursor-pointer border border-slate-700 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 hover:border-amber-500 transition">
+              <input type="radio" name="broadcast-severity" value="warning" class="text-amber-500">
+              <span class="text-amber-400">Warning</span>
+            </label>
+            <label class="cursor-pointer border border-slate-700 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 hover:border-rose-500 transition">
+              <input type="radio" name="broadcast-severity" value="alert" class="text-rose-500">
+              <span class="text-rose-400">Alert</span>
+            </label>
+            <label class="cursor-pointer border border-slate-700 rounded-xl p-2.5 text-center flex flex-col items-center gap-1 hover:border-emerald-500 transition">
+              <input type="radio" name="broadcast-severity" value="success" class="text-emerald-500">
+              <span class="text-emerald-400">Success</span>
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">Message Content</label>
+          <textarea id="broadcast-message" rows="3" placeholder="Type your broadcast message to all active users..." required class="input-field w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-2">
+          <button type="button" id="btn-cancel-broadcast" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-indigo-600/30">
+            Dispatch Broadcast
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= BAN USER MODAL ================= -->
+  <div id="modal-ban-user" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm hidden">
+    <div class="glass-panel w-full max-w-md p-6 rounded-3xl border shadow-2xl relative">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+        </div>
+        <div>
+          <h3 class="text-base font-bold font-display text-slate-900 dark:text-white">Suspend User Account</h3>
+          <p id="ban-target-name" class="text-xs text-slate-500 dark:text-slate-400">Target: @username</p>
+        </div>
+      </div>
+
+      <form id="form-ban-user" class="space-y-4">
+        <input type="hidden" id="ban-user-id">
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">Reason for Suspension</label>
+          <input id="ban-reason-input" type="text" value="Violation of platform community guidelines" required class="input-field w-full px-3.5 py-2.5 rounded-xl border text-sm focus:outline-none focus:ring-2 focus:ring-rose-500">
+        </div>
+
+        <div class="flex flex-wrap gap-1.5">
+          <button type="button" class="preset-reason text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Spam & Abuse</button>
+          <button type="button" class="preset-reason text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Harassment</button>
+          <button type="button" class="preset-reason text-[11px] px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">Suspicious Activity</button>
+        </div>
+
+        <div class="flex items-center justify-end gap-2 pt-3">
+          <button type="button" id="btn-cancel-ban" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white transition">Cancel</button>
+          <button type="submit" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-rose-600/30">
+            Confirm Suspension
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+  <!-- ================= DELETE USER MODAL ================= -->
+  <div id="modal-delete-user" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm hidden">
+    <div class="glass-panel w-full max-w-md p-6 rounded-3xl border border-rose-500/30 shadow-2xl relative text-center">
+      <div class="w-12 h-12 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center mx-auto mb-3">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+      </div>
+      <h3 class="text-lg font-bold font-display text-slate-900 dark:text-white mb-1">Permanently Delete User?</h3>
+      <p id="delete-target-info" class="text-xs text-slate-400 mb-4">Are you sure you want to delete @username?</p>
+      
+      <div class="p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs text-left mb-6 space-y-1">
+        <p class="font-semibold">⚠️ Irreversible Cascade Wiping:</p>
+        <ul class="list-disc pl-4 space-y-0.5 text-[11px] text-rose-300/80">
+          <li>Active sessions & WebSockets forcefully terminated</li>
+          <li>All cryptographic prekeys & credentials destroyed</li>
+          <li>All conversation rooms & stored messages wiped</li>
+        </ul>
+      </div>
+
+      <input type="hidden" id="delete-user-id">
+
+      <div class="flex items-center justify-center gap-3">
+        <button type="button" id="btn-cancel-delete" class="px-5 py-2.5 rounded-xl border border-slate-700 text-xs font-semibold text-slate-300 hover:bg-slate-800 transition">Cancel</button>
+        <button type="button" id="btn-confirm-delete" class="px-5 py-2.5 bg-rose-600 hover:bg-rose-500 text-white text-xs font-semibold rounded-xl transition shadow-lg shadow-rose-600/30">
+          Delete Permanently
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= TOAST NOTIFICATION CONTAINER ================= -->
+  <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+
+  <!-- ================= JAVASCRIPT LOGIC ================= -->
+  <script>
+    // --- State Variables ---
+    let modToken = localStorage.getItem('mod_session_token') || '';
+    let currentFilter = 'all';
+    let currentTab = 'users';
+    let currentTheme = localStorage.getItem('theme') || 'dark';
+    let refreshTimer = null;
+    let usersData = [];
+    let roomsData = [];
+
+    // --- Theme Management ---
+    function applyTheme(theme) {
+      currentTheme = theme;
+      localStorage.setItem('theme', theme);
+      const html = document.documentElement;
+      const body = document.getElementById('body-bg');
+      const sun = document.getElementById('theme-sun');
+      const moon = document.getElementById('theme-moon');
+
+      if (theme === 'light') {
+        html.classList.remove('dark');
+        body.className = 'h-full overflow-x-hidden doodle-bg-light text-slate-900 antialiased selection:bg-indigo-500 selection:text-white';
+        sun.classList.remove('hidden');
+        moon.classList.add('hidden');
+      } else {
+        html.classList.add('dark');
+        body.className = 'h-full overflow-x-hidden doodle-bg-dark text-slate-100 antialiased selection:bg-indigo-500 selection:text-white';
+        moon.classList.remove('hidden');
+        sun.classList.add('hidden');
+      }
+    }
+
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+      applyTheme(currentTheme === 'dark' ? 'light' : 'dark');
+    });
+    applyTheme(currentTheme);
+
+    // --- Toast Notifications ---
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      
+      const typeStyles = {
+        success: 'bg-emerald-600 text-white border-emerald-500/50 shadow-emerald-600/30',
+        error: 'bg-rose-600 text-white border-rose-500/50 shadow-rose-600/30',
+        warning: 'bg-amber-600 text-white border-amber-500/50 shadow-amber-600/30',
+        info: 'bg-indigo-600 text-white border-indigo-500/50 shadow-indigo-600/30'
+      };
+
+      toast.className = `pointer-events-auto px-4 py-3 rounded-2xl shadow-xl border text-xs font-semibold flex items-center gap-2 transform transition duration-300 translate-y-4 opacity-0 ${typeStyles[type] || typeStyles.info}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-4', 'opacity-0');
+      }, 10);
+
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    // --- Authenticated Fetch Helper for Moderator API ---
+    async function modFetch(url, options = {}) {
+      options.headers = options.headers || {};
+      if (modToken) {
+        options.headers['Authorization'] = `Bearer ${modToken}`;
+      }
+      options.credentials = 'include';
+      const res = await fetch(url, options);
+      if (res.status === 401 || res.status === 403) {
+        showAuthModal();
+      }
+      return res;
+    }
+
+    function showAuthModal() {
+      document.getElementById('mod-auth-modal').classList.remove('hidden');
+    }
+
+    function hideAuthModal() {
+      document.getElementById('mod-auth-modal').classList.add('hidden');
+    }
+
+    // --- Auth Submission ---
+    document.getElementById('form-mod-key').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = document.getElementById('input-mod-key').value.trim();
+      try {
+        const res = await fetch('/api/moderator/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          modToken = data.token;
+          localStorage.setItem('mod_session_token', modToken);
+          hideAuthModal();
+          showToast('Authenticated as Moderator', 'success');
+          loadDashboard();
+        } else {
+          const err = await res.json();
+          showAuthError(err.detail || 'Invalid Moderator Key');
+        }
+      } catch (err) {
+        showAuthError('Connection failure.');
+      }
+    });
+
+    function showAuthError(msg) {
+      const el = document.getElementById('auth-error-msg');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    document.getElementById('btn-mod-logout').addEventListener('click', () => {
+      localStorage.removeItem('mod_session_token');
+      modToken = '';
+      showAuthModal();
+    });
+
+    // --- Dashboard Data Loading ---
+    async function loadDashboard() {
+      const refreshIcon = document.getElementById('refresh-icon');
+      refreshIcon.classList.add('animate-spin');
+
+      try {
+        await Promise.all([
+          loadOverview(),
+          loadUsers(),
+          loadRooms(),
+          loadAuditLogs()
+        ]);
+      } catch(e) {
+        console.error(e);
+      } finally {
+        setTimeout(() => refreshIcon.classList.remove('animate-spin'), 400);
+      }
+    }
+
+    // 1. Overview Stats
+    async function loadOverview() {
+      const res = await modFetch('/api/moderator/overview');
+      if (!res.ok) return;
+      const data = await res.json();
+
+      document.getElementById('stat-total-users').textContent = data.total_users;
+      document.getElementById('stat-moderator-count').textContent = data.moderator_users;
+      document.getElementById('stat-online-users').textContent = data.online_users;
+      document.getElementById('stat-offline-users').textContent = data.offline_users;
+      document.getElementById('stat-total-rooms').textContent = data.total_rooms;
+      document.getElementById('stat-total-msgs').textContent = data.total_messages;
+      document.getElementById('stat-banned-users').textContent = data.banned_users;
+      document.getElementById('stat-ws-count').textContent = data.active_ws_connections;
+
+      const mins = Math.floor(data.uptime_seconds / 60);
+      const hrs = Math.floor(mins / 60);
+      document.getElementById('stat-uptime').textContent = hrs > 0 ? `${hrs}h ${mins % 60}m` : `${mins}m`;
+
+      document.getElementById('tab-badge-users').textContent = data.total_users;
+      document.getElementById('tab-badge-rooms').textContent = data.total_rooms;
+    }
+
+    // 2. Users Table
+    async function loadUsers() {
+      const q = document.getElementById('input-user-search').value.trim();
+      const statusParam = currentFilter !== 'all' ? `&status=${currentFilter}` : '';
+      const searchParam = q ? `&q=${encodeURIComponent(q)}` : '';
+
+      const res = await modFetch(`/api/moderator/users?limit=100${statusParam}${searchParam}`);
+      if (!res.ok) return;
+      const data = await res.json();
+      usersData = data.users || [];
+      renderUsersTable(usersData);
+    }
+
+    function renderUsersTable(users) {
+      const tbody = document.getElementById('users-table-body');
+      if (users.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No users found matching filter.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = users.map(u => {
+        const initial = (u.display_name || u.username || '?')[0].toUpperCase();
+        const onlineBadge = u.is_online 
+          ? `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/10 text-emerald-500 border border-emerald-500/20"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>ONLINE</span>`
+          : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-500/10 text-slate-400">OFFLINE</span>`;
+
+        const bannedBadge = u.is_banned 
+          ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-500/10 text-rose-500 border border-rose-500/20" title="${u.ban_reason || ''}">BANNED</span>` 
+          : '';
+
+        const roleBadge = u.is_moderator 
+          ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">MODERATOR</span>`
+          : `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium text-slate-400 bg-slate-800/40">USER</span>`;
+
+        function formatDateTime(isoStr) {
+          if (!isoStr) return '<span class="text-slate-500">Never</span>';
+          const d = new Date(isoStr);
+          const datePart = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+          const timePart = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+          return `<span class="text-slate-300 font-medium">${datePart}</span> <span class="text-slate-400 text-[10px]">${timePart}</span>`;
+        }
+
+        const regDate = formatDateTime(u.created_at);
+        const lastSeen = u.is_online ? '<span class="text-emerald-400 font-semibold">Active now</span>' : formatDateTime(u.last_seen_at);
+
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-600 text-white font-bold text-xs flex items-center justify-center shadow-sm">
+                  ${initial}
+                </div>
+                <div>
+                  <div class="font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-1.5">
+                    ${u.display_name}
+                  </div>
+                  <div class="text-[11px] text-slate-500">@${u.username} • <span class="font-mono text-[10px] text-slate-400">${u.id.substring(0, 8)}...</span></div>
+                </div>
+              </div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="flex items-center gap-1.5">${bannedBadge || onlineBadge}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="text-[11px] text-slate-300 font-medium">${u.message_count} msgs • ${u.rooms_count} rooms</div>
+              <div class="text-[11px] text-slate-400 mt-0.5">Last seen: ${lastSeen}</div>
+            </td>
+            <td class="py-3 px-4 text-[11px]">${regDate}</td>
+            <td class="py-3 px-4 text-right">
+              <div class="flex items-center justify-end gap-1.5">
+                ${u.is_online ? `
+                  <button onclick="kickUser('${u.id}', '${u.username}')" title="Kick Session" class="p-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-amber-500 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                  </button>
+                ` : ''}
+
+                ${u.is_banned ? `
+                  <button onclick="unbanUser('${u.id}', '${u.username}')" title="Revoke Ban" class="p-1.5 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-500 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                  </button>
+                ` : `
+                  <button onclick="openBanModal('${u.id}', '${u.username}')" title="Suspend User" class="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 transition">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                  </button>
+                `}
+
+                <button onclick="openDeleteModal('${u.id}', '${u.username}')" title="Delete User Permanently" class="p-1.5 rounded-lg bg-rose-600/10 hover:bg-rose-600/20 text-rose-500 transition">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 3. Rooms Table
+    async function loadRooms() {
+      const res = await modFetch('/api/moderator/rooms');
+      if (!res.ok) return;
+      roomsData = await res.json();
+      renderRoomsTable(roomsData);
+    }
+
+    function renderRoomsTable(rooms) {
+      const tbody = document.getElementById('rooms-table-body');
+      if (rooms.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No active rooms found.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = rooms.map(r => {
+        function formatDateTime(isoStr) {
+          if (!isoStr) return '<span class="text-slate-500">N/A</span>';
+          const d = new Date(isoStr);
+          return `<span class="text-slate-300">${d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span> <span class="text-slate-400 text-[10px]">${d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>`;
+        }
+
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+            <td class="py-3 px-4 font-mono text-[11px] text-indigo-400 font-semibold">${r.id}</td>
+            <td class="py-3 px-4">
+              <div class="font-medium text-slate-200">${r.user1.display_name}</div>
+              <div class="text-[10px] text-slate-500">@${r.user1.username}</div>
+            </td>
+            <td class="py-3 px-4">
+              <div class="font-medium text-slate-200">${r.user2.display_name}</div>
+              <div class="text-[10px] text-slate-500">@${r.user2.username}</div>
+            </td>
+            <td class="py-3 px-4 font-semibold text-slate-300">${r.message_count} msgs</td>
+            <td class="py-3 px-4 text-[11px]">${formatDateTime(r.created_at)}</td>
+            <td class="py-3 px-4 text-right">
+              <button onclick="purgeRoom('${r.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition">
+                Purge Room
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 4. Audit Logs
+    async function loadAuditLogs() {
+      const res = await modFetch('/api/moderator/audit-logs');
+      if (!res.ok) return;
+      const logs = await res.json();
+      renderAuditLogs(logs);
+    }
+
+    function renderAuditLogs(logs) {
+      const tbody = document.getElementById('logs-table-body');
+      if (logs.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500">No audit logs recorded yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = logs.map(l => {
+        const dateStr = l.created_at ? new Date(l.created_at).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'N/A';
+        const actionStyles = {
+          delete_user: 'bg-rose-500/15 text-rose-400 border-rose-500/20',
+          ban_user: 'bg-rose-500/15 text-rose-400 border-rose-500/20',
+          unban_user: 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
+          kick_user: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
+          broadcast: 'bg-indigo-500/15 text-indigo-400 border-indigo-500/20',
+          purge_room: 'bg-purple-500/15 text-purple-400 border-purple-500/20',
+          promote_moderator: 'bg-cyan-500/15 text-cyan-400 border-cyan-500/20',
+          demote_moderator: 'bg-slate-500/15 text-slate-400 border-slate-500/20'
+        };
+
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition font-mono text-[11px]">
+            <td class="py-2.5 px-4 text-slate-400">${dateStr}</td>
+            <td class="py-2.5 px-4 font-sans font-semibold text-slate-200">${l.moderator_username}</td>
+            <td class="py-2.5 px-4">
+              <span class="px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase ${actionStyles[l.action] || 'bg-slate-800 text-slate-300'}">
+                ${l.action.replace('_', ' ')}
+              </span>
+            </td>
+            <td class="py-2.5 px-4 font-sans text-slate-300">${l.target_username ? '@' + l.target_username : '-'}</td>
+            <td class="py-2.5 px-4 font-sans text-slate-400 truncate max-w-xs">${l.details || '-'}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // --- Search & Filter Handlers ---
+    let searchDebounce = null;
+    document.getElementById('input-user-search').addEventListener('input', () => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(loadUsers, 300);
+    });
+
+    document.querySelectorAll('.btn-filter').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        currentFilter = e.target.getAttribute('data-filter');
+        document.querySelectorAll('.btn-filter').forEach(b => {
+          b.className = 'btn-filter py-1.5 px-3 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition';
+        });
+        e.target.className = 'btn-filter py-1.5 px-3 rounded-lg bg-indigo-600 text-white shadow-sm transition';
+        loadUsers();
+      });
+    });
+
+    // --- Tab Navigation Handlers ---
+    const tabUsersBtn = document.getElementById('tab-users-btn');
+    const tabRoomsBtn = document.getElementById('tab-rooms-btn');
+    const tabLogsBtn = document.getElementById('tab-logs-btn');
+    const secUsers = document.getElementById('section-tab-users');
+    const secRooms = document.getElementById('section-tab-rooms');
+    const secLogs = document.getElementById('section-tab-logs');
+
+    function switchTab(tab) {
+      currentTab = tab;
+      [tabUsersBtn, tabRoomsBtn, tabLogsBtn].forEach(b => {
+        b.className = 'pb-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 transition flex items-center gap-2';
+      });
+      [secUsers, secRooms, secLogs].forEach(s => s.classList.add('hidden'));
+
+      if (tab === 'users') {
+        tabUsersBtn.className = 'pb-3 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 flex items-center gap-2 font-semibold';
+        secUsers.classList.remove('hidden');
+      } else if (tab === 'rooms') {
+        tabRoomsBtn.className = 'pb-3 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 flex items-center gap-2 font-semibold';
+        secRooms.classList.remove('hidden');
+      } else if (tab === 'logs') {
+        tabLogsBtn.className = 'pb-3 border-b-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 flex items-center gap-2 font-semibold';
+        secLogs.classList.remove('hidden');
+      }
+    }
+
+    tabUsersBtn.addEventListener('click', () => switchTab('users'));
+    tabRoomsBtn.addEventListener('click', () => switchTab('rooms'));
+    tabLogsBtn.addEventListener('click', () => switchTab('logs'));
+
+    // --- Auto Refresh Controller ---
+    document.getElementById('select-refresh-rate').addEventListener('change', (e) => {
+      const ms = parseInt(e.target.value);
+      clearInterval(refreshTimer);
+      if (ms > 0) {
+        refreshTimer = setInterval(loadDashboard, ms);
+      }
+    });
+
+    document.getElementById('btn-manual-refresh').addEventListener('click', loadDashboard);
+
+    // --- Moderation Action Functions ---
+
+    // 1. Kick User
+    async function kickUser(userId, username) {
+      if (!confirm(`Terminate active session for @${username}?`)) return;
+      const res = await modFetch(`/api/moderator/users/${userId}/kick`, { method: 'POST' });
+      if (res.ok) {
+        showToast(`User @${username} was kicked.`, 'warning');
+        loadDashboard();
+      } else {
+        showToast('Failed to kick user.', 'error');
+      }
+    }
+
+    // 2. Ban Modal & Execution
+    function openBanModal(userId, username) {
+      document.getElementById('ban-user-id').value = userId;
+      document.getElementById('ban-target-name').textContent = `Target: @${username}`;
+      document.getElementById('modal-ban-user').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-cancel-ban').addEventListener('click', () => {
+      document.getElementById('modal-ban-user').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.preset-reason').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        document.getElementById('ban-reason-input').value = e.target.textContent;
+      });
+    });
+
+    document.getElementById('form-ban-user').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const userId = document.getElementById('ban-user-id').value;
+      const reason = document.getElementById('ban-reason-input').value.trim();
+
+      const res = await modFetch(`/api/moderator/users/${userId}/ban`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason })
+      });
+
+      if (res.ok) {
+        document.getElementById('modal-ban-user').classList.add('hidden');
+        showToast('User suspended successfully.', 'warning');
+        loadDashboard();
+      } else {
+        showToast('Failed to suspend user.', 'error');
+      }
+    });
+
+    // 3. Unban User
+    async function unbanUser(userId, username) {
+      const res = await modFetch(`/api/moderator/users/${userId}/unban`, { method: 'POST' });
+      if (res.ok) {
+        showToast(`Suspension revoked for @${username}`, 'success');
+        loadDashboard();
+      } else {
+        showToast('Failed to unban user.', 'error');
+      }
+    }
+
+    // 5. Delete User Permanently (Cascade)
+    function openDeleteModal(userId, username) {
+      document.getElementById('delete-user-id').value = userId;
+      document.getElementById('delete-target-info').textContent = `Are you sure you want to delete @${username}?`;
+      document.getElementById('modal-delete-user').classList.remove('hidden');
+    }
+
+    document.getElementById('btn-cancel-delete').addEventListener('click', () => {
+      document.getElementById('modal-delete-user').classList.add('hidden');
+    });
+
+    document.getElementById('btn-confirm-delete').addEventListener('click', async () => {
+      const userId = document.getElementById('delete-user-id').value;
+      try {
+        const res = await modFetch(`/api/moderator/users/${userId}`, { method: 'DELETE' });
+        if (res.ok) {
+          document.getElementById('modal-delete-user').classList.add('hidden');
+          showToast('User and all associated data permanently deleted.', 'error');
+          loadDashboard();
+        } else {
+          const err = await res.json().catch(() => ({}));
+          showToast(err.detail || 'Failed to delete user.', 'error');
+        }
+      } catch (e) {
+        showToast('Network error while deleting user.', 'error');
+      }
+    });
+
+    // 6. Purge Room
+    async function purgeRoom(roomId) {
+      if (!confirm(`Purge conversation room ${roomId} and its messages?`)) return;
+      const res = await modFetch(`/api/moderator/rooms/${roomId}`, { method: 'DELETE' });
+      if (res.ok) {
+        showToast(`Room ${roomId} purged.`, 'info');
+        loadDashboard();
+      }
+    }
+
+    // 7. Purge All Messages
+    document.getElementById('btn-purge-all-messages').addEventListener('click', async () => {
+      if (!confirm('⚠️ PURGE ALL MESSAGES?\n\nThis will wipe all stored encrypted message records from the database across the entire application.')) return;
+      const res = await modFetch('/api/moderator/messages/purge-all', { method: 'DELETE' });
+      if (res.ok) {
+        const data = await res.json();
+        showToast(`Purged ${data.count} messages platform-wide.`, 'warning');
+        loadDashboard();
+      }
+    });
+
+    // 8. Broadcast Announcement
+    document.getElementById('btn-open-broadcast').addEventListener('click', () => {
+      document.getElementById('modal-broadcast').classList.remove('hidden');
+    });
+    document.getElementById('btn-close-broadcast').addEventListener('click', () => {
+      document.getElementById('modal-broadcast').classList.add('hidden');
+    });
+    document.getElementById('btn-cancel-broadcast').addEventListener('click', () => {
+      document.getElementById('modal-broadcast').classList.add('hidden');
+    });
+
+    document.getElementById('form-broadcast').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const title = document.getElementById('broadcast-title').value.trim();
+      const message = document.getElementById('broadcast-message').value.trim();
+      const severity = document.querySelector('input[name="broadcast-severity"]:checked').value;
+
+      const res = await modFetch('/api/moderator/broadcast', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, message, severity })
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        document.getElementById('modal-broadcast').classList.add('hidden');
+        document.getElementById('broadcast-message').value = '';
+        showToast(`Broadcast dispatched to ${data.recipients_count} connected users!`, 'success');
+        loadDashboard();
+      } else {
+        showToast('Failed to dispatch broadcast.', 'error');
+      }
+    });
+
+    // 9. Export JSON Report
+    document.getElementById('btn-export-json').addEventListener('click', async () => {
+      const res = await modFetch('/api/moderator/export');
+      if (!res.ok) return;
+      const data = await res.json();
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `moderator_report_${new Date().toISOString().slice(0,10)}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast('System report downloaded.', 'success');
+    });
+
+    // --- Init on Page Load ---
+    if (!modToken) {
+      showAuthModal();
+    } else {
+      loadDashboard();
+    }
+
+    // Default 5s auto refresh
+    refreshTimer = setInterval(loadDashboard, 5000);
+  </script>
+</body>
+</html>
