@@ -702,6 +702,73 @@
       document.getElementById('tab-badge-rooms').textContent = data.total_rooms;
     }
 
+    // --- IST (Indian Standard Time: Asia/Kolkata) Date & Time Helpers ---
+    function parseUtcDate(isoStr) {
+      if (!isoStr) return null;
+      let str = String(isoStr).trim();
+      if (!str.endsWith('Z') && !str.includes('+') && !str.match(/-\d{2}:\d{2}$/)) {
+        str = str.replace(' ', 'T') + 'Z';
+      }
+      const d = new Date(str);
+      return isNaN(d.getTime()) ? null : d;
+    }
+
+    function formatISTDateTime(isoStr, fallback = 'Never', showSeconds = true) {
+      const d = parseUtcDate(isoStr);
+      if (!d) return `<span class="text-slate-500">${fallback}</span>`;
+      const datePart = d.toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+      const timePart = d.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: 'numeric',
+        minute: '2-digit',
+        second: showSeconds ? '2-digit' : undefined,
+        hour12: true
+      });
+      return `<span class="text-slate-300 font-medium">${datePart}</span> <span class="text-slate-400 text-[10px]">${timePart}</span>`;
+    }
+
+    function formatISTShort(isoStr, fallback = 'N/A') {
+      const d = parseUtcDate(isoStr);
+      if (!d) return `<span class="text-slate-500">${fallback}</span>`;
+      const datePart = d.toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+      const timePart = d.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true
+      });
+      return `<span class="text-slate-300">${datePart}</span> <span class="text-slate-400 text-[10px]">${timePart}</span>`;
+    }
+
+    function formatISTLogDate(isoStr) {
+      const d = parseUtcDate(isoStr);
+      if (!d) return 'N/A';
+      const datePart = d.toLocaleDateString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        day: 'numeric',
+        month: 'short',
+        year: 'numeric'
+      });
+      const timePart = d.toLocaleTimeString('en-IN', {
+        timeZone: 'Asia/Kolkata',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true
+      });
+      return `${datePart}, ${timePart}`;
+    }
+
     // 2. Users Table
     async function loadUsers() {
       const q = document.getElementById('input-user-search').value.trim();
@@ -718,7 +785,7 @@
     function renderUsersTable(users) {
       const tbody = document.getElementById('users-table-body');
       if (users.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-slate-500">No users found matching filter.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="5" class="py-8 text-center text-slate-500">No users found matching query.</td></tr>`;
         return;
       }
 
@@ -736,16 +803,8 @@
           ? `<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-500/15 text-indigo-400 border border-indigo-500/30">MODERATOR</span>`
           : `<span class="px-2 py-0.5 rounded-full text-[10px] font-medium text-slate-400 bg-slate-800/40">USER</span>`;
 
-        function formatDateTime(isoStr) {
-          if (!isoStr) return '<span class="text-slate-500">Never</span>';
-          const d = new Date(isoStr);
-          const datePart = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
-          const timePart = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
-          return `<span class="text-slate-300 font-medium">${datePart}</span> <span class="text-slate-400 text-[10px]">${timePart}</span>`;
-        }
-
-        const regDate = formatDateTime(u.created_at);
-        const lastSeen = u.is_online ? '<span class="text-emerald-400 font-semibold">Active now</span>' : formatDateTime(u.last_seen_at);
+        const regDate = formatISTDateTime(u.created_at, 'N/A', true);
+        const lastSeen = u.is_online ? '<span class="text-emerald-400 font-semibold">Active now</span>' : formatISTDateTime(u.last_seen_at, 'Never', true);
 
         return `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
@@ -814,11 +873,7 @@
       }
 
       tbody.innerHTML = rooms.map(r => {
-        function formatDateTime(isoStr) {
-          if (!isoStr) return '<span class="text-slate-500">N/A</span>';
-          const d = new Date(isoStr);
-          return `<span class="text-slate-300">${d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })}</span> <span class="text-slate-400 text-[10px]">${d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}</span>`;
-        }
+        const createdDate = formatISTShort(r.created_at, 'N/A');
 
         return `
           <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
@@ -832,7 +887,7 @@
               <div class="text-[10px] text-slate-500">@${r.user2.username}</div>
             </td>
             <td class="py-3 px-4 font-semibold text-slate-300">${r.message_count} msgs</td>
-            <td class="py-3 px-4 text-[11px]">${formatDateTime(r.created_at)}</td>
+            <td class="py-3 px-4 text-[11px]">${createdDate}</td>
             <td class="py-3 px-4 text-right">
               <button onclick="purgeRoom('${r.id}')" class="px-2.5 py-1 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 text-xs font-semibold transition">
                 Purge Room
@@ -859,7 +914,7 @@
       }
 
       tbody.innerHTML = logs.map(l => {
-        const dateStr = l.created_at ? new Date(l.created_at).toLocaleString([], { month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'N/A';
+        const dateStr = formatISTLogDate(l.created_at);
         const actionStyles = {
           delete_user: 'bg-rose-500/15 text-rose-400 border-rose-500/20',
           ban_user: 'bg-rose-500/15 text-rose-400 border-rose-500/20',
