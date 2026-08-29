@@ -36,7 +36,7 @@ GhostWire includes an isolated, real-time **Moderator Operations Console** prote
 
 ### 🛡️ Live Moderator Operations Suite (`/moderator`)
 - **Single-Master Moderator Architecture**: Zero user promotion loopholes—the console is unlocked strictly via encrypted Master Moderator Key validation.
-- **Cryptographic Key Hashing**: Key verified using **PBKDF2-HMAC-SHA256** (200,000 iterations + dedicated salt). Zero plaintext storage.
+- **Cryptographic Key Hashing**: Key verified using **PBKDF2-HMAC-SHA256**. Zero plaintext storage.
 - **Live User Directory & Inspection**: Filter users (`Online`, `Offline`, `Banned`), inspect room associations, message volume, and last-seen activity timestamps.
 - **Instant Moderation Controls**:
   - ⚡ **Kick**: Terminate active WebSockets and invalidate sessions in real time.
