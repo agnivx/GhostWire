@@ -80,8 +80,7 @@ uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 4. Access the Application
-- **💬 Chat Portal**: [http://localhost:8000](http://localhost:8000)
-- **🛡️ Moderator Console**: [http://localhost:8000/moderator](http://localhost:8000/moderator)
+- [GhostWire](https://ghostwire-ugfs.onrender.com/)
 
 ---
 
