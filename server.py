@@ -73,7 +73,13 @@ DEFAULT_MOD_HASH = "1ee0a6706f91df39f270933f78334ff4d5ddc36527bf2e5400280ddb1efc
 RP_ID = os.getenv("RP_ID", "localhost")
 RP_NAME = os.getenv("RP_NAME", "GhostWire")
 RP_ORIGIN = os.getenv("RP_ORIGIN", "http://localhost:8000")
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./chat.db")
+
+raw_db_url = os.getenv("DATABASE_URL", "sqlite+aiosqlite:///./chat.db").strip()
+if raw_db_url.startswith("postgres://"):
+    raw_db_url = raw_db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+elif raw_db_url.startswith("postgresql://") and "+asyncpg" not in raw_db_url:
+    raw_db_url = raw_db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+DATABASE_URL = raw_db_url
 
 SESSION_COOKIE_NAME = "chat_session"
 SESSION_TTL_SECONDS = 86400 * 30  # 30 days persistent session
