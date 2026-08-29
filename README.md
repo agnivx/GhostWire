@@ -62,7 +62,7 @@ GhostWire includes an isolated, real-time **Moderator Operations Console** prote
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/your-username/ghostwire.git
+git clone https://github.com/agnivx/ghostwire.git
 cd ghostwire
 ```
 
@@ -74,10 +74,6 @@ pip install -r requirements.txt
 ### 3. Start the Application
 ```bash
 python run.py
-```
-*Or launch directly with Uvicorn:*
-```bash
-uvicorn server:app --host 0.0.0.0 --port 8000 --reload
 ```
 
 ### 4. Access the Application
