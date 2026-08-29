@@ -29,6 +29,7 @@ GhostWire includes an isolated, real-time **Moderator Operations Console** prote
 
 ### 🔒 Cryptography & Messaging
 - **True End-to-End Encryption (E2EE)**: Direct client-to-client cryptographic sessions established with ephemeral `P-256` ECDH prekeys and 256-bit AES-GCM ciphers.
+- **Direct P2P Encrypted Audio & Video Calling**: WebRTC-powered voice and video calls with DTLS-SRTP encryption, synthesized ringtones, screen sharing, and interactive controls.
 - **Client-Side Media & Voice Notes**: Voice recordings, images, and attachments are encrypted in memory before transmission.
 - **Real-Time Communication**: Sub-millisecond bidirectional messaging, live typing status, and presence tracking over persistent WebSockets.
 - **Zero-Knowledge Backend**: Messages stored in transit are completely encrypted with authenticated GCM tags.
